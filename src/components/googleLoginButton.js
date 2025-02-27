@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useEffect } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import AuthService from "../services/authService";
 
@@ -8,6 +8,28 @@ console.log("Google Client ID:", clientId);
 
 const GoogleLoginButton = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authSuccess = params.get('auth') === 'success';
+    
+    if (authSuccess) {
+      // Clean up the URL
+      window.history.replaceState({}, document.title, '/notes');
+      
+      // Check auth status to confirm
+      AuthService.checkAuthStatus()
+        .then(data => {
+          if (!data.authenticated) {
+            navigate('/login');
+          }
+        })
+        .catch(err => {
+          console.error('Auth check failed:', err);
+          navigate('/login');
+        });
+    }
+  }, [navigate]);
 
   const handleSuccess = async (credentialResponse) => {
     try {
