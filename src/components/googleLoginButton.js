@@ -1,5 +1,5 @@
-import React from "react";
-import { useNavigate, useEffect } from "react-router-dom";
+import React, {useEffect} from "react";
+import { useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import AuthService from "../services/authService";
 
