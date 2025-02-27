@@ -8,7 +8,6 @@
   padding-top: 8rem;
   justify-content: center;
   background: rgba(0, 0, 0, 0.5);
-  /* Added fade-in for overlay */
   animation: overlayFade 0.3s ease-out forwards;
 }
 
@@ -21,7 +20,6 @@
   position: relative;
   flex-direction: column;
   justify-content: center;
-  /* Added animation for modal content */
   animation: modalFade 0.3s ease-out forwards;
 }
 

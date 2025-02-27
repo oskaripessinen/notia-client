@@ -3,12 +3,13 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 4px;  /* Updated from 2px */
+    gap: 4px; 
     width: 800px;
     margin: 0 auto;
     margin-top: 5rem;
-    max-width: 800px;  /* Added */
+    max-width: 800px;  
 }.editor-toolbar {
+
     display: flex;
     align-items: center;
     gap: 8px;
@@ -95,7 +96,7 @@
   color: #ffffff;
 }
 
-/* Add to your existing CSS */
+
 .save-status {
   position: absolute;
   top: 1rem;
