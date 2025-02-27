@@ -1,0 +1,23 @@
+
+.note-boxx {
+    width: 100%;
+    padding: 5px 4px;
+    margin: 0;
+    border: 1px solid #2c2c2c;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    color: #ffffff;
+    font-size: 13px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.1s ease-in-out;
+}
+
+.note-boxx:hover {
+    border-color: #4e4e4e;
+}
+
+.note-boxx:focus {
+    border-color: #565656;
+}

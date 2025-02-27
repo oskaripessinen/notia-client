@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+
+
+.frontpage-container {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    margin: 1rem 1.8rem;
+    flex: 1;
+}
+
+/* Updated header styling to align the button on the right */
+.frontpage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.signup-button {
+    padding: 0.4rem 1rem;
+    margin: 0.6rem;
+    color: white;
+    font-family: 'poppins';
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-radius: 1.5rem;
+    border: 2px solid black;
+    background-color: black;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.signup-button:hover {
+    border-color: white;
+    background-color: white;
+    color: black;
+}
+
+.login-button {
+    padding: 0.4rem 1rem;
+    color: white;
+    font-family: 'poppins';
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-radius: 1.5rem;
+    border-width: 0;
+    background-color: transparent;
+    border: 2px solid white;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.login-button:hover {
+    background-color: white;
+    color: black;
+}
+
+.frontpage-content {
+    flex: 1;
+    padding-top: 14rem;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.frontpage-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: white;
+}
+
+.frontpage-content h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.frontpage-content h3 {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: rgb(184, 184, 184);
+    padding: 0;
+}
+

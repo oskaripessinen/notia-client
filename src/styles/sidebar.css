@@ -1,0 +1,373 @@
+.sidebar {
+    width: 250px;
+    background-color: #1e1e1e;
+    padding: 0;
+    margin: 0;
+    border-right: 1px solid #3e3e3e;
+}
+
+.sidebar h2 {
+    color: #ffffff;
+    font-size: 1.2rem;
+    margin: 0 0 0 0;
+    padding: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar > ul > li {
+    padding: 0;
+    margin: 0;
+    border-radius: 4px;
+}
+
+.notebooks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.notebook-item {
+    display: flex;
+    flex-direction: column;
+    font-family: "Poppins";
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+
+
+.notebook-input-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    transition: all 1s ease-in-out;
+}
+
+.notebook-input-container.active {
+    margin: 0;
+    margin-top: 5px;
+    padding: 0;
+    padding: 8px;
+    opacity: 1;
+    height: 30px; /* Adjust based on your input height */
+}
+
+.notebook-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    background-color: transparent;
+}
+
+.notebook-header:hover {
+    background-color: #2c2c2c;
+}
+
+.notebook-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notebook-header-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.notebook-header:hover .notebook-header-right {
+    opacity: 1;
+}
+
+.notebook-action-button {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+}
+
+.notebook-action-button:hover {
+    background-color: #3e3e3e;
+    color: #fff;
+}
+
+.toggle-icon {
+    color: #666;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin-right: 0.4rem;
+    transition: all 0.2s ease;
+}
+
+.toggle-icon svg {
+    transition: transform 0.2s ease;
+}
+
+.toggle-icon.expanded svg {
+    transform: rotate(90deg);
+}
+
+.toggle-icon:hover {
+    background-color: #505050;
+    color: white;
+}
+
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    margin-left: 32px;
+    gap: 2px;
+    padding: 0;
+    list-style: none;
+}
+
+.note-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    margin: 1px 0;
+    font-size: 0.8rem;
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.note-item:hover {
+    background-color: #2c2c2c;
+}
+
+.note-item.active {
+    background-color: #3e3e3e;
+    color: #fff;
+}
+
+.note-item.active .note-content {
+    color: #fff;
+}
+
+.note-content {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.note-delete-button {
+    opacity: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.note-item:hover .note-delete-button {
+    opacity: 1;
+}
+
+.note-delete-button:hover {
+    background-color: #3e3e3e;
+    color: #ff4444;
+}
+
+.note-input-container {
+    padding: 4px 8px;
+    
+}
+
+.note-input-container input {
+    width: 100%;
+    padding: 0;
+    font-size: 0.7rem;
+    color: #ccc;
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    
+    font-size: 0.8rem;
+    outline: none;
+}
+
+.note-input-container input:focus {
+    border-color: #565656;
+}
+
+.active {
+    color: #fff;
+    font-weight: 500;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0rem 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    background-color: #3e3e3e;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.user-name {
+    font-size: 0.9rem;
+    color: #ccc;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Update existing h2 styling */
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #ffffff;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.add-button {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background-color: transparent;
+    border: none;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: right;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-button:hover {
+    background-color: #3e3e3e;
+    color: #fff;
+}
+
+.add-notebook-button {
+    gap: 5px;
+    display: flex;
+    align-items: center;
+    height: 30px;
+    margin-top: 15px;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.add-notebook-button:hover {
+    background-color: #2c2c2c;
+    color: #fff;
+}
+
+.add-notebook-button svg {
+    width: 12px;
+    height: 12px;
+}
+
+.new-notebook-input {
+    flex: 1;
+    padding: 4px 8px;
+    margin-top: 0px;
+    background-color: #2c2c2c;
+    border: 1px solid #3e3e3e;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    width: 20px;
+}
+
+.new-notebook-input:focus {
+    border-color: #565656;
+}
+
+.input-add-button {
+    width: 20px;
+    height: 25px;
+    border-radius: 4px;
+    background-color: transparent;
+    border: none;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.input-add-button:hover {
+    background-color: #3e3e3e;
+    color: #fff;
+}
