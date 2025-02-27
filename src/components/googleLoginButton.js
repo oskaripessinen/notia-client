@@ -14,7 +14,6 @@ const GoogleLoginButton = () => {
       const result = await AuthService.verifyGoogleToken(credentialResponse.credential);
       console.log("Backend verification result:", result);
       if (result.success) {
-        // Optionally, store token in localStorage if needed
         navigate("/notes");
       }
     } catch (error) {
