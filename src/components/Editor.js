@@ -8,9 +8,9 @@ import noteService from '../services/noteService';
 const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitleChange, activeNote }) => {
   const titleRef = useRef(null);
   const updateTimeoutRef = useRef(null);
-  const [saveStatus, setSaveStatus] = useState('saved'); // 'saved', 'saving'
+  const [saveStatus, setSaveStatus] = useState('saved'); 
 
-  // Modified debounced update function with better error handling
+
   const debouncedUpdate = useCallback((title, content) => {
     if (updateTimeoutRef.current) {
       clearTimeout(updateTimeoutRef.current);
@@ -43,10 +43,10 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
         console.error('Failed to update note:', error);
         setSaveStatus('error');
       }
-    }, 1000); // Reduced debounce time
+    }, 1000); 
   }, [activeNotebook, activeNote]);
 
-  // Cleanup debouncer on unmount
+
   useEffect(() => {
     return () => {
       if (updateTimeoutRef.current) {
@@ -55,14 +55,12 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
     };
   }, []);
 
-  // Update title and trigger debounced update
   const handleTitleUpdate = (e) => {
     const newTitle = e.target.value;
     handleTitleChange(newTitle);
     debouncedUpdate(newTitle, notes.content);
   };
 
-  // Modified content update handler with validation
   const handleContentUpdate = (index, value) => {
     if (!Array.isArray(notes.content)) {
       console.error('Notes content is not an array');
@@ -94,7 +92,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
     }
   };
 
-  // Add error message display
   const renderSaveStatus = () => {
     switch (saveStatus) {
       case 'saving':

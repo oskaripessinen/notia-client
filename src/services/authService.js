@@ -13,6 +13,7 @@ class AuthService {
       const response = await fetch(`${BASE_URL}/auth/status`, {
         credentials: 'include' // Important: sends HttpOnly cookie automatically
       });
+      console.log('Auth status response:', response);
       return await response.json();
     } catch (error) {
       console.error('Auth status check failed:', error);
