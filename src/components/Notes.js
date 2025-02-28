@@ -17,6 +17,7 @@ const Notes = () => {
 
   // Check authentication status and set user
   useEffect(() => {
+    console.log('Checking auth status...');
     AuthService.checkAuthStatus().then((data) => {
       if (!data.authenticated) {
         window.location.href = '/login';

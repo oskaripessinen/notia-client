@@ -37,6 +37,7 @@ const GoogleLoginButton = () => {
       console.log("Backend verification result:", result);
       if (result.success) {
         navigate("/notes");
+        console.log("Login successful:", result.user);
       }
     } catch (error) {
       console.error("Verification failed:", error);
