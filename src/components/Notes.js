@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate } from 'react-router-dom'; 
 import AuthService from '../services/authService';
 import Sidebar from './SideBar';
 import Editor from './Editor';
@@ -10,24 +10,33 @@ const Notes = () => {
   const [notes, setNotes] = useState({ title: '', content: [''] });
   const [user, setUser] = useState(null);
   const [authStatus, setAuthStatus] = useState(false);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true); 
   const [activeNotebook, setActiveNotebook] = useState(null);
   const [activeNote, setActiveNote] = useState(null);
   const [notebooks, setNotebooks] = useState([]);
   const [isAddingNotebook, setIsAddingNotebook] = useState(false);
   
-  const navigate = useNavigate(); // Use React Router's navigate
+  const navigate = useNavigate(); 
 
   // Combine the auth check and data fetching into a single effect
   useEffect(() => {
-    const initializeApp = async () => {
+    const initializeApp = async (retryCount = 0) => {
       try {
-        console.log('Checking auth status...');
+        console.log(`Checking auth status... (attempt ${retryCount + 1})`);
         const authData = await AuthService.checkAuthStatus();
         
         if (!authData.authenticated) {
-          console.log('Not authenticated, redirecting to login');
-          navigate('/login'); // Use navigate instead of window.location
+          console.log('Not authenticated response:', authData);
+          
+          // Retry logic - give the session time to establish
+          if (retryCount < 2) {
+            console.log(`Authentication failed, retrying in 1 second... (${retryCount + 1}/3)`);
+            setTimeout(() => initializeApp(retryCount + 1), 1000);
+            return;
+          }
+          
+          console.log('Authentication failed after retries, redirecting to login');
+          navigate('/login');
           return;
         }
         
@@ -47,9 +56,26 @@ const Notes = () => {
         }
       } catch (error) {
         console.error('Error during initialization:', error);
-        navigate('/login'); // Redirect on error
+        
+        // Retry on network errors
+        if (error.message?.includes('network') && retryCount < 2) {
+          console.log(`Network error, retrying in 1 second... (${retryCount + 1}/3)`);
+          setTimeout(() => initializeApp(retryCount + 1), 1000);
+          return;
+        }
+        
+        navigate('/login'); // Redirect on error after retries
       } finally {
-        setLoading(false); // Always mark loading as complete
+        // Modify this to avoid the authStatus dependency
+        if (retryCount === 2) {
+          setLoading(false); // Always mark loading as complete after all retries
+        } else {
+          // Use a local variable instead of referencing the state
+          const isAuthenticated = true; // We're in the success path
+          if (isAuthenticated) {
+            setLoading(false);
+          }
+        }
       }
     };
     
