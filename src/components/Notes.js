@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import AuthService from '../services/authService';
 import Sidebar from './SideBar';
 import Editor from './Editor';
@@ -9,35 +10,51 @@ const Notes = () => {
   const [notes, setNotes] = useState({ title: '', content: [''] });
   const [user, setUser] = useState(null);
   const [authStatus, setAuthStatus] = useState(false);
+  const [loading, setLoading] = useState(true); // Add loading state
   const [activeNotebook, setActiveNotebook] = useState(null);
   const [activeNote, setActiveNote] = useState(null);
-  // Initially you might have some dummy notebooks; they will be replaced by server data
   const [notebooks, setNotebooks] = useState([]);
   const [isAddingNotebook, setIsAddingNotebook] = useState(false);
+  
+  const navigate = useNavigate(); // Use React Router's navigate
 
-  // Check authentication status and set user
+  // Combine the auth check and data fetching into a single effect
   useEffect(() => {
-    console.log('Checking auth status...');
-    AuthService.checkAuthStatus().then((data) => {
-      if (!data.authenticated) {
-        window.location.href = '/login';
-      } else {
-        setAuthStatus(true);
-        setUser(data.user); // Store user data from auth response
-      }
-    });
-  }, []);
-
-  // Once authenticated and user is available, fetch notebooks from the server
-  useEffect(() => {
-    if (authStatus && user) {
-      noteService.fetchNotebooks().then((fetchedNotebooks) => {
-        if (fetchedNotebooks) {
-          setNotebooks(fetchedNotebooks);
+    const initializeApp = async () => {
+      try {
+        console.log('Checking auth status...');
+        const authData = await AuthService.checkAuthStatus();
+        
+        if (!authData.authenticated) {
+          console.log('Not authenticated, redirecting to login');
+          navigate('/login'); // Use navigate instead of window.location
+          return;
         }
-      });
-    }
-  }, [authStatus, user]);
+        
+        console.log('User authenticated:', authData.user);
+        setAuthStatus(true);
+        setUser(authData.user);
+        
+        // Now that we have authentication confirmed, fetch notebooks
+        console.log('Fetching notebooks...');
+        const fetchedNotebooks = await noteService.fetchNotebooks();
+        
+        if (fetchedNotebooks) {
+          console.log('Notebooks fetched:', fetchedNotebooks.length);
+          setNotebooks(fetchedNotebooks);
+        } else {
+          console.log('No notebooks returned or error fetching notebooks');
+        }
+      } catch (error) {
+        console.error('Error during initialization:', error);
+        navigate('/login'); // Redirect on error
+      } finally {
+        setLoading(false); // Always mark loading as complete
+      }
+    };
+    
+    initializeApp();
+  }, [navigate]); // Only depend on navigate
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
@@ -225,7 +242,14 @@ const Notes = () => {
     }
   };
 
-  if (!authStatus) return <div>Loading...</div>;
+  // Update your return statement to handle loading state
+  if (loading) {
+    return <div className="loading-container">Loading application...</div>;
+  }
+
+  if (!authStatus) {
+    return <div className="auth-error">Authentication error. Please log in again.</div>;
+  }
 
   return (
     <div className="notes-container">
