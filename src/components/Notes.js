@@ -24,7 +24,7 @@ const Notes = () => {
       try {
         console.log(`Checking auth status... (attempt ${retryCount + 1})`);
         const authData = await AuthService.checkAuthStatus();
-        
+        console.log("auth: ", authData);
         if (!authData.authenticated) {
           console.log('Not authenticated response:', authData);
           

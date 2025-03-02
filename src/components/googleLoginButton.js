@@ -20,6 +20,7 @@ const GoogleLoginButton = () => {
       // Check auth status to confirm
       AuthService.checkAuthStatus()
         .then(data => {
+          console.log('Auth check result:', data);
           if (!data.authenticated) {
             navigate('/login');
           }
