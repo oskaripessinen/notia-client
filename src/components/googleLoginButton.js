@@ -46,15 +46,25 @@ const GoogleLoginButton = () => {
   };
 
   return (
-    <GoogleOAuthProvider clientId={clientId}>
-      <GoogleLogin
-        size="large"
-        onSuccess={handleSuccess}
-        onError={(error) => console.log("Login Failed:", error)}
-        useOneTap
-        flow="auth-code"
-      />
-    </GoogleOAuthProvider>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      width: '100%',
+      
+    }}>
+      <GoogleOAuthProvider clientId={clientId}>
+        <GoogleLogin
+          width={400}
+          size='large'
+          shape='pill'
+          onSuccess={handleSuccess}
+          onError={(error) => console.log("Login Failed:", error)}
+          useOneTap
+          flow="auth-code"
+          type='standard'
+        />
+      </GoogleOAuthProvider>
+    </div>
   );
 };
 

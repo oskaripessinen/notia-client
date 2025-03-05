@@ -20,6 +20,8 @@ const Notes = () => {
 
   // Combine the auth check and data fetching into a single effect
   useEffect(() => {
+  
+
     const initializeApp = async (retryCount = 0) => {
       try {
         console.log(`Checking auth status... (attempt ${retryCount + 1})`);
@@ -66,7 +68,7 @@ const Notes = () => {
         
         navigate('/login'); // Redirect on error after retries
       } finally {
-        // Modify this to avoid the authStatus dependency
+        
         if (retryCount === 2) {
           setLoading(false); // Always mark loading as complete after all retries
         } else {
@@ -81,6 +83,34 @@ const Notes = () => {
     
     initializeApp();
   }, [navigate]); // Only depend on navigate
+
+  useEffect(() => {
+    // Initial auth check when component loads
+    checkAuthStatus();
+    
+    // Set up periodic authentication check
+    const authCheckInterval = setInterval(checkAuthStatus, 10000); // Check every 10 seconds
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(authCheckInterval);
+    
+    function checkAuthStatus() {
+      AuthService.checkAuthStatus()
+        .then(response => {
+          if (!response.authenticated) {
+            console.log("Session expired, logging out");
+            // Clear any client-side auth state
+            localStorage.removeItem("userLoggedIn");
+            // Redirect to login
+            navigate("/login");
+          }
+        })
+        .catch(error => {
+          console.error("Auth check failed", error);
+          navigate("/login");
+        });
+    }
+  }, [navigate]);
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {

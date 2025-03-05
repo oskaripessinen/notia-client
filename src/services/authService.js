@@ -11,11 +11,13 @@ class AuthService {
   static async checkAuthStatus() {
     try {
       const response = await fetch(`${BASE_URL}/auth/status`, {
-        credentials: 'include' // Important: sends HttpOnly cookie automatically
+        credentials: 'include'
       });
       console.log('Auth status response:', response);
-      return await response.json();
-    } catch (error) {
+      const data = await response.json();
+      console.log('Auth status response:', data);
+      return data;
+    }catch (error) {
       console.error('Auth status check failed:', error);
       return { authenticated: false };
     }

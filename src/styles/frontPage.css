@@ -1,12 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
-
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1e1e1e;
+    font-family: 'Poppins', sans-serif;
+}
 
 .frontpage-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* This makes it full viewport height */
+    width: 100%;
+    background-color: #1a1a1a; /* Assuming dark theme, adjust if needed */
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    margin: 1rem 1.8rem;
+    margin: 0;
     flex: 1;
 }
 
@@ -15,7 +25,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 1rem 2rem;
     margin-bottom: 1rem;
+    /* No fixed height - let it take natural height */
 }
 
 .header-content {
@@ -64,11 +76,13 @@
 }
 
 .frontpage-content {
-    flex: 1;
-    padding-top: 14rem;
-    justify-content: center;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center vertically */
+    align-items: center;    /* Center horizontally */
     text-align: center;
+    flex: 1; /* This makes it take up all available space */
+    padding: 2rem;
 }
 
 .frontpage-header h1 {
@@ -79,18 +93,19 @@
 }
 
 .frontpage-content h2 {
-    font-size: 3rem;
+    margin: 0.5rem 0;
+    font-size: 2.5rem;
     font-weight: 700;
     color: white;
-    margin: 0;
     padding: 0;
 }
 
 .frontpage-content h3 {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
     font-size: 1.1rem;
-    font-weight: 500;
-    color: rgb(184, 184, 184);
+    font-weight: 400;
+    color: #b0b0b0;
     padding: 0;
 }
 
