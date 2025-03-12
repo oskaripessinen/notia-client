@@ -1,0 +1,199 @@
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px; /* Add padding for small screens */
+}
+
+.share-modal {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto; /* Explicit centering */
+  transform: translateY(-10px); /* Slight upward shift for visual balance */
+  max-height: 90vh; /* Prevent overflow on small screens */
+  overflow-y: auto; /* Add scrolling if needed */
+}
+
+.share-modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #3a3a3a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.share-modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #ffffff;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: #3e3e3e;
+  color: #ffffff;
+}
+
+.share-modal-content {
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.share-modal-content p {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #c0c0c0;
+}
+
+.email-input-container {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.email-input-container input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #3a3a3a;
+  background-color: #333333;
+  color: #ffffff;
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
+}
+
+.email-input-container input:focus {
+  outline: none;
+  border-color: #5a5af3;
+}
+
+.add-email-button {
+  padding: 0 12px;
+  background-color: #5a5af3;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-email-button:hover {
+  background-color: #4949c5;
+}
+
+.add-email-button:disabled {
+  background-color: #4a4a4a;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.email-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.email-chip {
+  display: flex;
+  align-items: center;
+  background-color: #3a3a3a;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+}
+
+.email-chip span {
+  margin-right: 8px;
+}
+
+.email-chip button {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.email-chip button:hover {
+  color: #ff6b6b;
+}
+
+.share-modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #3a3a3a;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-button {
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #a0a0a0;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: #3a3a3a;
+  color: #ffffff;
+}
+
+.share-button {
+  padding: 8px 16px;
+  background-color: #5a5af3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.share-button:hover {
+  background-color: #4949c5;
+}
+
+.share-button:disabled {
+  background-color: #4a4a4a;
+  cursor: not-allowed;
+}

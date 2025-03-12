@@ -4,7 +4,9 @@ import { faChevronRight, faChevronDown, faPlus, faEllipsisVertical, faTrash } fr
 import noteService from '../services/noteService'; // Import noteService
 import '../styles/sidebar.css';
 
-const Sidebar = ({ 
+const Sidebar = ({
+  handleDeleteNote,
+  setNotes,
   notebooks, 
   setNotebooks,  
   activeNotebook, 
@@ -101,9 +103,9 @@ const Sidebar = ({
         _id: updatedNote._id,
         notebookId: updatedNote.notebookId
       });
-      
+
       setActiveNotebook(notebook);
-      setActiveNote(notebook, updatedNote);
+      setActiveNote(notebook, note);
       console.log('Active note:', updatedNote);
     } else {
       console.error('Could not find note in notebook', { note, notebook });
@@ -162,42 +164,6 @@ const Sidebar = ({
     }
   };
 
-  const handleDeleteNote = async (e, noteId, notebookId) => {
-    e.stopPropagation();
-    const deletedNote = await noteService.deleteNote(notebookId, noteId);
-    console.log('Deleted note:', deletedNote);
-
-    const updatedNotebooks = notebooks.map(notebook => {
-      if (notebook._id === notebookId) {
-        const updatedNotes = notebook.notes.filter(note => note._id !== noteId);
-        return {
-          ...notebook,
-          notes: updatedNotes
-        };
-      }
-      return notebook;
-    });
-    setNotebooks(updatedNotebooks);
-
-    // If we're deleting the active note
-    if (activeNote?._id === noteId) {
-      // Find the notebook that had the note deleted
-      const notebook = updatedNotebooks.find(nb => nb._id === notebookId);
-      
-      // If the notebook has other notes, set the first one as active
-      if (notebook.notes && notebook.notes.length > 0) {
-        setActiveNote({
-          ...notebook.notes[0],
-          id: notebook.notes[0]._id,
-          _id: notebook.notes[0]._id,
-          notebookId: notebook._id
-        });
-      } else {
-        // If no notes left, clear the active note
-        setActiveNote(null);
-      }
-    }
-  };
 
   // Input handling functions
   const handleKeyDown = (e) => {

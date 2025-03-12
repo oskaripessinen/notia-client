@@ -188,6 +188,68 @@ const Notes = () => {
     }
   };
 
+  const handleDeleteNote = async (e, noteId, notebookId) => {
+    e.stopPropagation();
+    const deletedNote = await noteService.deleteNote(notebookId, noteId);
+    console.log('Deleted note:', deletedNote);
+
+    // Find the notebook and the index of the note being deleted
+    const notebook = notebooks.find(nb => nb._id === notebookId);
+    const deletedNoteIndex = notebook.notes.findIndex(note => note._id === noteId);
+    
+    // Update notebooks state with note removed
+    const updatedNotebooks = notebooks.map(notebook => {
+      if (notebook._id === notebookId) {
+        const updatedNotes = notebook.notes.filter(note => note._id !== noteId);
+        return {
+          ...notebook,
+          notes: updatedNotes
+        };
+      }
+      return notebook;
+    });
+    setNotebooks(updatedNotebooks);
+
+    // If we're deleting the active note
+    if (activeNote?._id === noteId) {
+      // Get the updated notebook after deletion
+      const updatedNotebook = updatedNotebooks.find(nb => nb._id === notebookId);
+      
+      // If there are still notes left in the notebook
+      if (updatedNotebook.notes && updatedNotebook.notes.length > 0) {
+        // Try to get the previous note (if it exists)
+        let nextActiveNote;
+        
+        // If the deleted note wasn't the first one, get the previous note
+        if (deletedNoteIndex > 0) {
+          nextActiveNote = updatedNotebook.notes[deletedNoteIndex - 1];
+        } else {
+          // Otherwise, get the new first note
+          nextActiveNote = updatedNotebook.notes[0];
+        }
+        
+        setActiveNote({
+          ...nextActiveNote,
+          id: nextActiveNote._id,
+          _id: nextActiveNote._id,
+          notebookId: updatedNotebook._id
+        });
+        
+        setNotes({
+          title: nextActiveNote.title || '',
+          content: nextActiveNote.content || ['']
+        });
+      } else {
+        // If no notes left, clear the active note
+        setActiveNote(null);
+        setNotes({
+          title: '',
+          content: ['']
+        });
+      }
+    }
+  };
+
   // Update the handleNoteSelect function to safely handle undefined notes
   const handleNoteSelect = (notebook, note) => {
     // Check if notebook exists but note is undefined
@@ -196,19 +258,19 @@ const Notes = () => {
       
       // If the notebook has notes, select the first one
       if (notebook.notes && notebook.notes.length > 0) {
-        
+        const firstNote = notebook.notes[0];
         // Make sure the note has _id
-        if (note && note._id) {
+        if (firstNote && firstNote._id) {
           setActiveNote({
-            ...note,
-            id: note._id,
-            _id: note._id,
+            ...firstNote,
+            id: firstNote._id,
+            _id: firstNote._id,
             notebookId: notebook._id
           });
           
           setNotes({
-            title: note.title || '',
-            content: note.content || ['']
+            title: firstNote.title || '',
+            content: firstNote.content || ['']
           });
         } else {
           // No valid first note, set empty state
@@ -256,6 +318,12 @@ const Notes = () => {
             _id: matchingNote._id,
             notebookId: notebook._id
           });
+          
+          // THIS LINE WAS MISSING - Update the notes state with the content
+          setNotes({
+            title: matchingNote.title || '',
+            content: matchingNote.content || ['']
+          });
           return;
         }
       }
@@ -270,6 +338,12 @@ const Notes = () => {
       id: note._id,
       _id: note._id,
       notebookId: notebook._id
+    });
+    
+    // THIS LINE WAS MISSING - Update the notes state with the content
+    setNotes({
+      title: note.title || '',
+      content: note.content || ['']
     });
   };
 
@@ -300,7 +374,10 @@ const Notes = () => {
 
   // Update your return statement to handle loading state
   if (loading) {
-    return <div className="loading-container">Loading application...</div>;
+    return <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Loading your notes...</div>
+          </div>;
   }
 
   if (!authStatus) {
@@ -310,6 +387,7 @@ const Notes = () => {
   return (
     <div className="notes-container">
       <Sidebar 
+        setNotes={setNotes}
         notebooks={notebooks}
         setNotebooks={setNotebooks} 
         activeNotebook={activeNotebook}
@@ -320,6 +398,7 @@ const Notes = () => {
         setIsAddingNotebook={setIsAddingNotebook}
         handleAddNotebook={handleAddNotebook}
         user={user}
+        handleDeleteNote={handleDeleteNote}
       />
       <Editor 
         activeNote={activeNote}
@@ -327,7 +406,8 @@ const Notes = () => {
         handleChange={handleChange}
         handleKeyDown={handleKeyDown}
         handleTitleChange={handleTitleChange}
-        activeNotebook={activeNotebook} 
+        activeNotebook={activeNotebook}
+        handleDeleteNote={handleDeleteNote}
       />
     </div>
   );
