@@ -4,7 +4,6 @@ import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import AuthService from "../services/authService";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-console.log("Google Client ID:", clientId);
 
 const GoogleLoginButton = () => {
   const navigate = useNavigate();
@@ -20,13 +19,11 @@ const GoogleLoginButton = () => {
       // Check auth status to confirm
       AuthService.checkAuthStatus()
         .then(data => {
-          console.log('Auth check result:', data);
           if (!data.authenticated) {
             navigate('/login');
           }
         })
         .catch(err => {
-          console.error('Auth check failed:', err);
           navigate('/login');
         });
     }
@@ -35,13 +32,10 @@ const GoogleLoginButton = () => {
   const handleSuccess = async (credentialResponse) => {
     try {
       const result = await AuthService.verifyGoogleToken(credentialResponse.credential);
-      console.log("Backend verification result:", result);
       if (result.success) {
         navigate("/notes");
-        console.log("Login successful:", result.user);
       }
     } catch (error) {
-      console.error("Verification failed:", error);
     }
   };
 
@@ -58,7 +52,6 @@ const GoogleLoginButton = () => {
           size='large'
           shape='pill'
           onSuccess={handleSuccess}
-          onError={(error) => console.log("Login Failed:", error)}
           useOneTap
           flow="auth-code"
           type='standard'

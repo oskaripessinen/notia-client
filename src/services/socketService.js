@@ -7,14 +7,11 @@ let eventHandlers = {};
  * Initialize socket connection
  */
 const initSocket = () => {
-  console.log('Initializing socket connection...');
   if (socket) {
-    console.log('Socket already initialized, returning existing socket');
     return socket;
   }
   
   const SOCKET_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-  console.log('Connecting to Socket.IO server at:', SOCKET_URL);
   
   socket = io(SOCKET_URL, {
     withCredentials: true,
@@ -24,19 +21,15 @@ const initSocket = () => {
   
   // Add more debugging
   socket.on('connect', () => {
-    console.log('Socket connected successfully:', socket.id);
   });
   
-  socket.on('disconnect', (reason) => {
-    console.log('Socket disconnected:', reason);
+  socket.on('disconnect', () => {
   });
   
-  socket.on('connect_error', (error) => {
-    console.error('Socket connection error:', error.message, error);
+  socket.on('connect_error', () => {
   });
   
-  socket.on('error', (error) => {
-    console.error('Socket error:', error);
+  socket.on('error', () => {
   });
   
   return socket;
@@ -47,15 +40,12 @@ const initSocket = () => {
  * @param {string} notebookId - ID of the notebook to join
  */
 const joinNotebook = (notebookId) => {
-  console.log('Joining notebook:', notebookId);
   if (!socket) initSocket();
   if (socket.connected) {
     socket.emit('join-notebook', notebookId);
-    console.log('Jdadsad:', notebookId);
   } else {
     socket.on('connect', () => {
       socket.emit('join-notebook', notebookId);
-      console.log('Jdadsad:', notebookId);
     });
   }
 };
@@ -65,18 +55,13 @@ const joinNotebook = (notebookId) => {
  * @param {string} notebookId - ID of the notebook to leave
  */
 const leaveNotebook = (notebookId) => {
-  console.log('Leaving notebook:', notebookId);
   if (!socket) {
-    console.warn('Cannot leave notebook: Socket not initialized');
     return;
   }
   
   if (socket.connected) {
     socket.emit('leave-notebook', notebookId);
-    console.log('Left notebook room:', notebookId);
-  } else {
-    console.warn('Cannot leave notebook: Socket not connected');
-  }
+  } 
 };
 
 /**
@@ -149,7 +134,6 @@ const handleNotebookSync = (callback) => {
   if (!socket) initSocket();
   
   socket.on('notebook-sync', (data) => {
-    console.log('Received notebook sync:', data);
     callback(data.notebook);
   });
   

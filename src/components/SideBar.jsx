@@ -47,9 +47,7 @@ const Sidebar = ({
   };
 
   // Updated handleNotebookClick function
-  const handleNotebookClick = (notebook) => {
-    console.log('Notebook clicked:', notebook._id);
-    
+  const handleNotebookClick = (notebook) => {    
     setActiveNotebook({
       ...notebook,
       id: notebook._id,
@@ -60,18 +58,15 @@ const Sidebar = ({
     
     if (notebook.notes && notebook.notes.length > 0) {
       const firstNote = notebook.notes[0];
-      console.log('First note:', firstNote);
       
       // Make sure note has required properties
       if (firstNote && firstNote.id) {
         setActiveNote(notebook, notebook.notes[0]);
       } else {
-        console.warn("First note is missing _id", firstNote);
         // Don't continue with an invalid note
         setAddingNoteToNotebook(notebook._id);
       }
     } else {
-      console.log("No notes found, adding note input");
       setAddingNoteToNotebook(notebook._id);
       // Clear the active note to avoid any stale references
       setActiveNote(null);
@@ -96,18 +91,10 @@ const Sidebar = ({
         _id: fullNote._id || fullNote.id,
         notebookId: notebook._id
       };
-      
-      console.log('Setting active note with IDs:', {
-        id: updatedNote.id,
-        _id: updatedNote._id,
-        notebookId: updatedNote.notebookId
-      });
 
       setActiveNotebook(notebook);
       setActiveNote(notebook, note);
-      console.log('Active note:', updatedNote);
     } else {
-      console.error('Could not find note in notebook', { note, notebook });
     }
   };
 
@@ -123,13 +110,11 @@ const Sidebar = ({
       const createdNote = await noteService.createNote(notebookId, newNoteData);
       
       if (createdNote) {
-        console.log("createdNote", createdNote);
         
         // Fetch updated notebooks from the server to get proper IDs
         const updatedNotebooks = await noteService.fetchNotebooks();
         
         if (!updatedNotebooks) {
-          console.error('Failed to fetch updated notebooks');
           return;
         }
         
@@ -141,7 +126,6 @@ const Sidebar = ({
         const updatedNotebook = updatedNotebooks.find(nb => nb._id === notebookId);
         
         if (!updatedNotebook) {
-          console.error('Could not find updated notebook', { notebookId });
           return;
         }
         
@@ -150,7 +134,6 @@ const Sidebar = ({
           n.title === createdNote.title && 
           (n.createdAt === createdNote.createdAt || n._id === createdNote._id)
         );
-        console.log('updatedNote', updatedNote);
         if (updatedNote) {
           setActiveNotebook(updatedNotebook);
           setActiveNote(updatedNotebook, updatedNote);
@@ -159,7 +142,6 @@ const Sidebar = ({
         }
       }
     } catch (error) {
-      console.error('Failed to add note:', error);
     }
   };
 
@@ -252,7 +234,6 @@ const Sidebar = ({
                   className="notebook-action-button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('Notebook ID:', notebook._id); // Add this log
                     setAddingNoteToNotebook(notebook._id); // Use _id instead of id
                     openNotebook(notebook._id); // Use openNotebook to ensure it's open
                   }}

@@ -1,5 +1,4 @@
 const BASE_URL = process.env.REACT_APP_API_URL;
-console.log('BASE_URL:', BASE_URL);
 class AuthService {
   // Redirect to Google login (if using a redirect based approach)
   static initiateGoogleLogin() {
@@ -13,47 +12,37 @@ class AuthService {
       const response = await fetch(`${BASE_URL}/auth/status`, {
         credentials: 'include'
       });
-      console.log('Auth status response:', response);
       const data = await response.json();
-      console.log('Auth status response:', data);
       return data;
     }catch (error) {
-      console.error('Auth status check failed:', error);
       return { authenticated: false };
     }
   }
 
   // Logout by making a POST request. The server should clear the cookie.
   static async logout() {
-    try {
-      const response = await fetch(`${BASE_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Logout failed:', error);
-      throw error;
-    }
+    const response = await fetch(`${BASE_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    return await response.json();
+    
   }
 
   // Send Google token to the backend for verification, if needed.
   // You could also have the server set the HttpOnly cookie in the response.
   static async verifyGoogleToken(credential) {
-    try {
-      const response = await fetch(`${BASE_URL}/auth/google/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({ credential })
-      });
-      return await response.json();
-    } catch (error) {
-      console.error('Google verification failed:', error);
-      throw error;
-    }
+    
+    const response = await fetch(`${BASE_URL}/auth/google/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({ credential })
+    });
+    return await response.json();
+    
   }
 }
 

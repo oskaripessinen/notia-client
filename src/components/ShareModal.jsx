@@ -24,7 +24,6 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
           setEmails(userEmails);
           setLoading(false);
         } catch (error) {
-          console.error('Failed to fetch user details:', error);
           setError('Failed to load current users');
           setLoading(false);
         }
@@ -87,7 +86,6 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
       setError('');
     } catch (err) {
       setError('Failed to share notebook. Please try again.');
-      console.error('Error sharing notebook:', err);
     } finally {
       setSharing(false);
     }

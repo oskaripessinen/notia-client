@@ -17,7 +17,6 @@ const fetchNotebook = async (notebookId) => {
     });
     return response.data;
   } catch (err) {
-    console.error('Failed to fetch notebook:', err);
     return null;
   }
 };
@@ -42,7 +41,6 @@ const fetchNotebooks = async () => {
     }));
     return notebooksWithId;
   } catch (err) {
-    console.error('Failed to fetch notebooks:', err);
     return null;
   }
 };
@@ -57,7 +55,6 @@ const createNotebook = async (title) => {
     );
     return response.data;
   } catch (err) {
-    console.error('Failed to create notebook:', err);
     return null;
   }
 };
@@ -65,13 +62,8 @@ const createNotebook = async (title) => {
 // Modified createNote function
 const createNote = async (notebookId, noteData) => {
   try {
-    console.log('Creating note:', {
-      notebookId,
-      noteData
-    });
-    
     // Don't send client-generated _id
-    const { _id, ...dataToSend } = noteData;
+    const { ...dataToSend } = noteData;
     
     const response = await axios.post(
       `${baseUrl}/notebooks/${notebookId}/notes`,
@@ -91,26 +83,16 @@ const createNote = async (notebookId, noteData) => {
     
     return processedData;
   } catch (err) {
-    console.error('Failed to create note:', err);
     return null;
   }
 };
 
 // Update the updateNote function
 const updateNote = async (notebookId, noteId, updateData) => {
-  try {
-    // Validate IDs more thoroughly
     if (!notebookId || !noteId) {
-      console.error('Missing notebook or note ID', { notebookId, noteId });
       throw new Error('Missing notebook or note ID');
     }
 
-    console.log('Updating note with data:', {
-      notebookId,
-      noteId,
-      updateData
-    });
-    
     // Ensure IDs are in the correct format
     const formattedNoteId = noteId.toString();
     const formattedNotebookId = notebookId.toString();
@@ -142,31 +124,11 @@ const updateNote = async (notebookId, noteId, updateData) => {
         notebookId: formattedNotebookId
       };
     }
-    
-    return null;
-  } catch (err) {
-    // Extract detailed error information
-    const errorDetails = {
-      message: err.message,
-      status: err.response?.status,
-      statusText: err.response?.statusText,
-      data: err.response?.data,
-      notebookId,
-      noteId,
-      updateData
-    };
-    console.error('Failed to update note:', errorDetails);
-    throw err;
-  }
 };
 
 const deleteNote = async (notebookId, noteId) => {
   try {
-    console.log('Deleting note:', {
-      notebookId,
-      noteId
-    });
-    
+
     const response = await axios.delete(
       `${baseUrl}/notebooks/${notebookId}/notes/${noteId}`,
       { withCredentials: true }
@@ -174,7 +136,6 @@ const deleteNote = async (notebookId, noteId) => {
     
     return response.data;
   } catch (err) {
-    console.error('Failed to delete note:', err);
     return null;
   }
 }
@@ -194,37 +155,29 @@ const fetchNote = async (notebookId, noteId) => {
       notebookId: notebookId
     };
   } catch (err) {
-    console.error('Failed to fetch note:', err);
     return null;
   }
 };
 
 const shareNotebook = async (notebookId, emails) => {
-  try {
-    const response = await axios.post(
-      `${baseUrl}/notebooks/${notebookId}/share`,
-      { emails },
-      { withCredentials: true }
-    );
-    return response.data;
-  } catch (err) {
-    console.error('Error sharing notebook:', err.response?.data || err.message);
-    throw err;
-  }
+  
+  const response = await axios.post(
+    `${baseUrl}/notebooks/${notebookId}/share`,
+    { emails },
+    { withCredentials: true }
+  );
+  return response.data;
+  
 };
 
 // Add method to remove a user from a shared notebook
 const removeNotebookShare = async (notebookId, userId) => {
-  try {
-    const response = await axios.delete(
-      `${baseUrl}/notebooks/${notebookId}/share/${userId}`,
-      { withCredentials: true }
-    );
-    return response.data;
-  } catch (err) {
-    console.error('Error removing notebook share:', err.response?.data || err.message);
-    throw err;
-  }
+  const response = await axios.delete(
+    `${baseUrl}/notebooks/${notebookId}/share/${userId}`,
+    { withCredentials: true }
+  );
+  return response.data;
+  
 };
 
 // Subscribe to updates for a specific notebook.

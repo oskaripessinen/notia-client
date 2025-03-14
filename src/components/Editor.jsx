@@ -43,14 +43,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
     switch(action) {
       case 'delete':
         // Implement delete functionality
-        console.log('Delete note');
-        break;
-      case 'export':
-        // Implement export functionality
-        console.log('Export note');
-        break;
-      case 'print':
-        window.print();
         break;
       case 'share':
         setIsShareModalOpen(true);
@@ -61,16 +53,8 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
   };
 
   const handleShareNoteBook = (email) => {
-    console.log(`Sharing note with: ${email}`);
     noteService.shareNotebook(activeNotebook._id, [email])
-      .then(() => {
-        console.log('Notebook shared successfully');
-      })
-      .catch((error) => {
-        console.error('Failed to share notebook:', error);
-      });
-    
-  
+
   };
 
   const debouncedUpdate = useCallback((title, content) => {
@@ -82,7 +66,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
     
     updateTimeoutRef.current = setTimeout(async () => {
       if (!activeNotebook?._id || !activeNote?._id) {
-        console.warn('Missing notebook or note ID', { activeNotebook, activeNote });
         setSaveStatus('error');
         return;
       }
@@ -120,7 +103,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
           setSaveStatus('error');
         }
       } catch (error) {
-        console.error('Failed to update note:', error);
         setSaveStatus('error');
       }
     }, 1000);
@@ -142,7 +124,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
 
   const handleContentUpdate = (index, value) => {
     if (!Array.isArray(notes.content)) {
-      console.error('Notes content is not an array');
       return;
     }
     
@@ -192,7 +173,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
           const users = await userService.getUsersByIds(activeNotebook.users);
           setSharedUsers(users);
         } catch (error) {
-          console.error("Failed to fetch shared users", error);
         }
       } else {
         setSharedUsers([]);
@@ -205,49 +185,38 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
   }, [activeNotebook]);
 
   useEffect(() => {
-    console.log('Joining notebook room:', activeNotebook?._id);
     if (activeNotebook?._id) {
       // Join the notebook room
       socketService.joinNotebook(activeNotebook?._id);
-      console.log('Joined notebook room:', activeNotebook?._id);
       
       // Set up handlers for real-time events
       const unsubscribeNoteUpdated = socketService.onEvent('note-updated', (data) => {
-        console.log('Remote note update received:', data);
         if (data.noteId === activeNote?._id) {
           // Update the note data if it's the active note
           // This ensures we don't override the user's current changes
           if (data.title) {
             
-            console.log(`Remote title update: ${data.title}`);
             
             
           }
           
           if (data.content) {
-            console.log('Remote content update received for:', data.content[0]);
-            console.log('Current content:', notes.content);
             setNotes({
               title: data.title,
               content: data.content
-            });
-
-            console.log('Updated content:', notes.content);
-            
-            
-            
+            });                
           }
         }
       });
       
       const unsubscribeUserJoined = socketService.onEvent('user-joined', (user) => {
-        console.log(`${user.email} joined the notebook`);
-        // You could show a notification here
+        
+        
       });
       
       const unsubscribeUserLeft = socketService.onEvent('user-left', (user) => {
-        console.log(`${user.email} left the notebook`);
-        // You could show a notification here
+        
+      
       });
       
       // Clean up on unmount or when notebook changes

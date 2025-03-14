@@ -24,44 +24,32 @@ const Notes = () => {
 
     const initializeApp = async (retryCount = 0) => {
       try {
-        console.log(`Checking auth status... (attempt ${retryCount + 1})`);
         const authData = await AuthService.checkAuthStatus();
-        console.log("auth: ", authData);
-        if (!authData.authenticated) {
-          console.log('Not authenticated response:', authData);
-          
+        if (!authData.authenticated) {          
           // Retry logic - give the session time to establish
           if (retryCount < 2) {
-            console.log(`Authentication failed, retrying in 1 second... (${retryCount + 1}/3)`);
             setTimeout(() => initializeApp(retryCount + 1), 1000);
             return;
           }
           
-          console.log('Authentication failed after retries, redirecting to login');
           navigate('/login');
           return;
         }
         
-        console.log('User authenticated:', authData.user);
         setAuthStatus(true);
         setUser(authData.user);
         
         // Now that we have authentication confirmed, fetch notebooks
-        console.log('Fetching notebooks...');
         const fetchedNotebooks = await noteService.fetchNotebooks();
         
         if (fetchedNotebooks) {
-          console.log('Notebooks fetched:', fetchedNotebooks.length);
           setNotebooks(fetchedNotebooks);
         } else {
-          console.log('No notebooks returned or error fetching notebooks');
         }
       } catch (error) {
-        console.error('Error during initialization:', error);
         
         // Retry on network errors
         if (error.message?.includes('network') && retryCount < 2) {
-          console.log(`Network error, retrying in 1 second... (${retryCount + 1}/3)`);
           setTimeout(() => initializeApp(retryCount + 1), 1000);
           return;
         }
@@ -88,7 +76,6 @@ const Notes = () => {
   const checkForNewNotebooks = useCallback(async () => {
     const fetchedNotebooks = await noteService.fetchNotebooks();
     if (fetchedNotebooks && fetchedNotebooks.length > notebooks.length) {
-      console.log('New notebooks found, updating state');
       setNotebooks(fetchedNotebooks);
     }
   }, [notebooks.length]); // Add notebooks.length as dependency
@@ -120,7 +107,6 @@ const Notes = () => {
       AuthService.checkAuthStatus()
         .then(response => {
           if (!response.authenticated) {
-            console.log("Session expired, logging out");
             // Clear any client-side auth state
             localStorage.removeItem("userLoggedIn");
             // Redirect to login
@@ -128,7 +114,6 @@ const Notes = () => {
           }
         })
         .catch(error => {
-          console.error("Auth check failed", error);
           navigate("/login");
         });
     }
@@ -239,7 +224,6 @@ const Notes = () => {
   const handleDeleteNote = async (e, noteId, notebookId) => {
     e.stopPropagation();
     const deletedNote = await noteService.deleteNote(notebookId, noteId);
-    console.log('Deleted note:', deletedNote);
 
     // Find the notebook and the index of the note being deleted
     const notebook = notebooks.find(nb => nb._id === notebookId);
@@ -302,7 +286,6 @@ const Notes = () => {
   const handleNoteSelect = (notebook, note) => {
     // Check if notebook exists but note is undefined
     if (notebook && !note) {
-      console.log('Notebook selected without a note, showing first note or empty state');
       
       // If the notebook has notes, select the first one
       if (notebook.notes && notebook.notes.length > 0) {
@@ -343,13 +326,11 @@ const Notes = () => {
     // Original function logic for when both notebook and note are defined
     // Check if both notebook and note are defined
     if (!notebook || !note) {
-      console.warn('Missing notebook or note in handleNoteSelect', { notebook, note });
       return;
     }
     
     // Verify that note has the _id property
     if (!note._id) {
-      console.warn('Note is missing _id property', note);
       
       // Try to find a matching note with _id in the notebook
       if (notebook.notes && notebook.notes.length > 0) {
