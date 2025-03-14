@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import AuthService from '../services/authService';
-import Sidebar from './SideBar';
-import Editor from './Editor';
+import Sidebar from '../components/SideBar';
+import Editor from '../components/Editor';
 import noteService from '../services/noteService';
 import '../styles/notes.css';
-
+import socketService from '../services/socketService';
 const Notes = () => {
   const [notes, setNotes] = useState({ title: '', content: [''] });
   const [user, setUser] = useState(null);
@@ -84,6 +84,28 @@ const Notes = () => {
     initializeApp();
   }, [navigate]); // Only depend on navigate
 
+  // First, use useCallback to memoize the function to prevent infinite render loops
+  const checkForNewNotebooks = useCallback(async () => {
+    const fetchedNotebooks = await noteService.fetchNotebooks();
+    if (fetchedNotebooks && fetchedNotebooks.length > notebooks.length) {
+      console.log('New notebooks found, updating state');
+      setNotebooks(fetchedNotebooks);
+    }
+  }, [notebooks.length]); // Add notebooks.length as dependency
+
+  // Then update the useEffect with the memoized function in its dependency array
+  useEffect(() => {
+    // Initial check
+    checkForNewNotebooks();
+    
+    // Set up polling every 15 seconds (changed from 30)
+    const pollingInterval = setInterval(() => {
+      checkForNewNotebooks();
+    }, 15000); // 15 seconds
+    
+    return () => clearInterval(pollingInterval);
+  }, [checkForNewNotebooks]); // Include checkForNewNotebooks in the dependency array
+
   useEffect(() => {
     // Initial auth check when component loads
     checkAuthStatus();
@@ -111,6 +133,32 @@ const Notes = () => {
         });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (activeNotebook?._id) {
+      // Set up sync handler
+      const unsubscribeSyncHandler = socketService.handleNotebookSync((updatedNotebook) => {
+        setActiveNotebook(updatedNotebook);
+        
+        // If we have an active note, find its updated version
+        if (activeNote?._id) {
+          const updatedNote = updatedNotebook.notes.find(n => n._id === activeNote._id);
+          if (updatedNote) {
+            setActiveNote({ ...updatedNote, notebookId: updatedNotebook._id });
+            setNotes({
+              title: updatedNote.title || '',
+              content: updatedNote.content || ['']
+            });
+          }
+        }
+      });
+      
+      // Clean up
+      return () => {
+        unsubscribeSyncHandler();
+      };
+    }
+  }, [activeNotebook?._id, activeNote?._id]);
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
@@ -372,6 +420,36 @@ const Notes = () => {
     }
   };
 
+  // Add this function to update notebooks whenever a note is edited
+  const updateNoteInLocalState = (notebookId, noteId, updates) => {
+    setNotebooks(prevNotebooks => {
+      return prevNotebooks.map(notebook => {
+        // If this is not the notebook containing our note, return it unchanged
+        if (notebook._id !== notebookId) return notebook;
+        
+        // Otherwise, update the specific note in this notebook
+        const updatedNotes = notebook.notes.map(note => {
+          if (note._id !== noteId) return note;
+          
+          // Return the updated note
+          return {
+            ...note,
+            ...updates,
+            // Ensure IDs are preserved
+            _id: note._id,
+            id: note._id
+          };
+        });
+        
+        // Return the notebook with updated notes array
+        return {
+          ...notebook,
+          notes: updatedNotes
+        };
+      });
+    });
+  };
+
   // Update your return statement to handle loading state
   if (loading) {
     return <div className="loading-container">
@@ -408,6 +486,8 @@ const Notes = () => {
         handleTitleChange={handleTitleChange}
         activeNotebook={activeNotebook}
         handleDeleteNote={handleDeleteNote}
+        setNotes={setNotes}
+        updateNoteInLocalState={updateNoteInLocalState}
       />
     </div>
   );

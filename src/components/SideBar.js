@@ -81,10 +81,9 @@ const Sidebar = ({
   // Note related functions
 
   // Update the handleNoteClick function
-  const handleNoteClick = (e, note, notebook) => {
+  const handleNoteClick = async (e, note, notebook) => {
     e.stopPropagation();
-    
-    // Find the note in the notebook to ensure we have all fields
+
     const fullNote = notebook.notes.find(n => 
       (n.title === note.title && n.content[0] === note.content[0]) || 
       n._id === note._id

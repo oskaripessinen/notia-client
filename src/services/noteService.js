@@ -199,8 +199,35 @@ const fetchNote = async (notebookId, noteId) => {
   }
 };
 
-// Subscribe to updates for a specific notebook (and its notes).
-// The callback will be called whenever the server emits an event with a matching notebook.
+const shareNotebook = async (notebookId, emails) => {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/notebooks/${notebookId}/share`,
+      { emails },
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error sharing notebook:', err.response?.data || err.message);
+    throw err;
+  }
+};
+
+// Add method to remove a user from a shared notebook
+const removeNotebookShare = async (notebookId, userId) => {
+  try {
+    const response = await axios.delete(
+      `${baseUrl}/notebooks/${notebookId}/share/${userId}`,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error removing notebook share:', err.response?.data || err.message);
+    throw err;
+  }
+};
+
+// Subscribe to updates for a specific notebook.
 const subscribeToNotebookUpdates = (notebookId, callback) => {
   socket.on('notebooksUpdated', (data) => {
     // Check if the update contains notebook data and matches the targeted notebookId
@@ -219,6 +246,8 @@ const unsubscribeFromNotebookUpdates = (callback) => {
 };
 
 
+
+
 const noteService = {
   socket,
   fetchNotebook,
@@ -230,6 +259,8 @@ const noteService = {
   subscribeToNotebookUpdates,
   unsubscribeFromNotebookUpdates,
   deleteNote,
+  shareNotebook,
+  removeNotebookShare
 };
 
 export default noteService;

@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark, faPaperPlane, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faPlus, faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import '../styles/shareModal.css';
-import userService from '../services/userService'; // Create this service
+import userService from '../services/userService';
 
 const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
   const [emails, setEmails] = useState([]);
   const [currentEmail, setCurrentEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const modalRef = useRef(null);
   const emailInputRef = useRef(null);
 
@@ -42,7 +43,6 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
       emailInputRef.current.focus();
     }
 
-    // Handle clicking outside to close
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         onClose();
@@ -58,13 +58,12 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
     };
   }, [isOpen, onClose]);
 
-  // Rest of the functions remain unchanged
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
 
-  const handleAddEmail = () => {
+  const handleAddEmail = async () => {
     if (!currentEmail.trim()) return;
 
     if (!validateEmail(currentEmail)) {
@@ -77,9 +76,21 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
       return;
     }
 
-    setEmails([...emails, currentEmail]);
-    setCurrentEmail('');
-    setError('');
+    try {
+      setSharing(true);
+      // Share with just this new email
+      await onShare([currentEmail]);
+      
+      // If sharing successful, update the UI
+      setEmails([...emails, currentEmail]);
+      setCurrentEmail('');
+      setError('');
+    } catch (err) {
+      setError('Failed to share notebook. Please try again.');
+      console.error('Error sharing notebook:', err);
+    } finally {
+      setSharing(false);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -90,17 +101,9 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
   };
 
   const handleRemoveEmail = (email) => {
+    // Note: This would typically involve an API call to remove share permission
+    // For now, we just update the UI
     setEmails(emails.filter(e => e !== email));
-  };
-
-  const handleShare = () => {
-    if (emails.length === 0) {
-      setError('Add at least one email to share with');
-      return;
-    }
-
-    onShare(emails);
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -122,21 +125,23 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
             <input
               ref={emailInputRef}
               type="email"
-              placeholder="Add email address"
+              placeholder="Enter email and press Enter to share"
               value={currentEmail}
               onChange={(e) => setCurrentEmail(e.target.value)}
               onKeyDown={handleKeyDown}
+              disabled={sharing}
             />
             <button 
               className="add-email-button"
               onClick={handleAddEmail}
-              disabled={!currentEmail.trim()}
+              disabled={!currentEmail.trim() || sharing}
             >
               <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
           
           {error && <div className="error-message">{error}</div>}
+          {sharing && <div className="info-message">Sharing...</div>}
           
           <div className="email-chips-container">
             {emails.map((email, index) => (
@@ -151,14 +156,7 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
         </div>
 
         <div className="share-modal-footer">
-          <button className="cancel-button" onClick={onClose}>Cancel</button>
-          <button 
-            className="share-button" 
-            onClick={() => handleShare()}
-            disabled={emails.length === 0}
-          >
-            <FontAwesomeIcon icon={faPaperPlane} /> Share
-          </button>
+          <button className="cancel-button" onClick={onClose}>Close</button>
         </div>
       </div>
     </div>

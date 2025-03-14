@@ -1,4 +1,3 @@
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -115,6 +114,13 @@
   color: #ff6b6b;
   font-size: 0.9rem;
   margin-bottom: 10px;
+}
+
+.info-message {
+  padding: 5px;
+  margin-top: 5px;
+  color: #0056b3;
+  font-size: 14px;
 }
 
 .email-chips-container {

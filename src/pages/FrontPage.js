@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
-import AuthModal from './AuthModal';
+import AuthModal from '../components/AuthModal';
 import '../styles/frontPage.css';
 
 

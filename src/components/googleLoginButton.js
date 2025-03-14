@@ -54,7 +54,7 @@ const GoogleLoginButton = () => {
     }}>
       <GoogleOAuthProvider clientId={clientId}>
         <GoogleLogin
-          width={400}
+          width={325}
           size='large'
           shape='pill'
           onSuccess={handleSuccess}
