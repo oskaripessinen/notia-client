@@ -78,10 +78,6 @@ const Sidebar = ({
   const handleNoteClick = async (e, note, notebook) => {
     e.stopPropagation();
 
-    const fullNote = notebook.notes.find(n => 
-      (n.title === note.title && n.content[0] === note.content[0]) || 
-      n._id === note._id
-    );
       setActiveNotebook(notebook);
       setActiveNote(notebook, note)
   };

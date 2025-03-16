@@ -44,7 +44,6 @@ const Notes = () => {
         
         if (fetchedNotebooks) {
           setNotebooks(fetchedNotebooks);
-        } else {
         }
       } catch (error) {
         if (error.message?.includes('network') && retryCount < 2) {
