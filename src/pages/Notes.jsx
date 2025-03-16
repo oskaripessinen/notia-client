@@ -47,8 +47,6 @@ const Notes = () => {
         } else {
         }
       } catch (error) {
-        
-        // Retry on network errors
         if (error.message?.includes('network') && retryCount < 2) {
           setTimeout(() => initializeApp(retryCount + 1), 1000);
           return;
@@ -209,13 +207,11 @@ const Notes = () => {
 
   const handleDeleteNote = async (e, noteId, notebookId) => {
     e.stopPropagation();
-    const deletedNote = await noteService.deleteNote(notebookId, noteId);
 
-    // Find the notebook and the index of the note being deleted
+   
     const notebook = notebooks.find(nb => nb._id === notebookId);
     const deletedNoteIndex = notebook.notes.findIndex(note => note._id === noteId);
     
-    // Update notebooks state with note removed
     const updatedNotebooks = notebooks.map(notebook => {
       if (notebook._id === notebookId) {
         const updatedNotes = notebook.notes.filter(note => note._id !== noteId);
@@ -432,7 +428,6 @@ const Notes = () => {
   return (
     <div className="notes-container">
       <Sidebar 
-        setNotes={setNotes}
         notebooks={notebooks}
         setNotebooks={setNotebooks} 
         activeNotebook={activeNotebook}

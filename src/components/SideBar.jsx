@@ -6,7 +6,6 @@ import '../styles/sidebar.css';
 
 const Sidebar = ({
   handleDeleteNote,
-  setNotes,
   notebooks, 
   setNotebooks,  
   activeNotebook, 
@@ -83,24 +82,13 @@ const Sidebar = ({
       (n.title === note.title && n.content[0] === note.content[0]) || 
       n._id === note._id
     );
-    
-    if (fullNote) {
-      const updatedNote = {
-        ...fullNote,
-        id: fullNote._id || fullNote.id,
-        _id: fullNote._id || fullNote.id,
-        notebookId: notebook._id
-      };
-
       setActiveNotebook(notebook);
-      setActiveNote(notebook, note);
-    } else {
-    }
+      setActiveNote(notebook, note)
   };
 
   // Updated handleAddNote function
   const handleAddNote = async (notebookId) => {
-    try {
+    
       const newNoteData = {
         title: newNoteTitle || 'Untitled',
         content: ['']
@@ -140,8 +128,6 @@ const Sidebar = ({
         } else {
           setActiveNote(activeNotebook.notes[0]);
         }
-      }
-    } catch (error) {
     }
   };
 
@@ -244,7 +230,7 @@ const Sidebar = ({
             </div>
             {expandedNotebooks[notebook._id] && ( // Use _id instead of id
               <div className="notes-list">
-                {(notebook.notes || []).map((note, index) => (
+                {(notebook.notes || []).map((note) => (
                   <div 
                     key={getUniqueKey(notebook, note)}
                     className={`note-item ${

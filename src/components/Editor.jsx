@@ -169,12 +169,11 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
   useEffect(() => {
     const getSharedUsers = async () => {
       if (activeNotebook?.users?.length > 1) { // More than just the owner
-        try {
+        
           const users = await userService.getUsersByIds(activeNotebook.users);
           setSharedUsers(users);
-        } catch (error) {
-        }
-      } else {
+      }
+       else {
         setSharedUsers([]);
       }
     };
@@ -202,12 +201,12 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
         }
       });
       
-      const unsubscribeUserJoined = socketService.onEvent('user-joined', (user) => {
+      const unsubscribeUserJoined = socketService.onEvent('user-joined', () => {
         
         
       });
       
-      const unsubscribeUserLeft = socketService.onEvent('user-left', (user) => {
+      const unsubscribeUserLeft = socketService.onEvent('user-left', () => {
         
       
       });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark, faPlus, faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import '../styles/shareModal.css';
 import userService from '../services/userService';
 
@@ -8,7 +8,7 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
   const [emails, setEmails] = useState([]);
   const [currentEmail, setCurrentEmail] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  
   const [sharing, setSharing] = useState(false);
   const modalRef = useRef(null);
   const emailInputRef = useRef(null);
@@ -18,14 +18,11 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
     const fetchUserEmails = async () => {
       if (isOpen && notebook && notebook.users && notebook.users.length > 0) {
         try {
-          setLoading(true);
           const userDetails = await userService.getUsersByIds(notebook.users);
           const userEmails = userDetails.map(user => user.email).filter(Boolean);
           setEmails(userEmails);
-          setLoading(false);
         } catch (error) {
           setError('Failed to load current users');
-          setLoading(false);
         }
       } else if (isOpen) {
         // Reset emails if modal opens without users
@@ -117,7 +114,7 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
         </div>
 
         <div className="share-modal-content">
-          <p>Share "{notebook?.title || 'Untitled Notebook'}" with others</p>
+          <p>Share &ldquo;{notebook?.title || 'Untitled Notebook'}&rdquo; with others</p>
           
           <div className="email-input-container">
             <input

@@ -22,21 +22,16 @@ const GoogleLoginButton = () => {
           if (!data.authenticated) {
             navigate('/login');
           }
-        })
-        .catch(err => {
-          navigate('/login');
         });
     }
   }, [navigate]);
 
   const handleSuccess = async (credentialResponse) => {
-    try {
-      const result = await AuthService.verifyGoogleToken(credentialResponse.credential);
-      if (result.success) {
-        navigate("/notes");
-      }
-    } catch (error) {
+    const result = await AuthService.verifyGoogleToken(credentialResponse.credential);
+    if (result.success) {
+      navigate("/notes");
     }
+  
   };
 
   return (
