@@ -49,10 +49,19 @@ describe('ShareModal Component', () => {
       render(<ShareModal {...mockProps} />);
     });
     
-    // Tarkista perus UI-elementit
-    expect(screen.getByText('Share "Test Notebook" with others')).toBeInTheDocument();
+    // Käytä joustavampaa hakua, joka sallii tekstin jakautumisen useampaan osaan
+    // Vaihtoehto 1: Regex-pohjainen haku
+    expect(screen.getByText(/Share .* with others/)).toBeInTheDocument();
     
-    // Odota että käyttäjäsähköpostit latautuvat - käytä findByText waitFor:in sijaan
+    // Tai tarkempi vaihtoehto 2: Function-pohjainen haku
+    expect(screen.getByText((content, element) => {
+      return element.tagName.toLowerCase() === 'p' && 
+             content.includes('Share') && 
+             content.includes('Test Notebook') && 
+             content.includes('with others');
+    })).toBeInTheDocument();
+    
+    // Odota että käyttäjäsähköpostit latautuvat
     const userEmail = await screen.findByText('user1@example.com', {}, { timeout: 3000 });
     expect(userEmail).toBeInTheDocument();
   });
