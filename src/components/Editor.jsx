@@ -191,7 +191,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
       // Set up handlers for real-time events
       const unsubscribeNoteUpdated = socketService.onEvent('note-updated', (data) => {
         if (data.noteId === activeNote?._id) {
-          
           if (data.content) {
             setNotes({
               title: data.title,
@@ -202,13 +201,11 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
       });
       
       const unsubscribeUserJoined = socketService.onEvent('user-joined', () => {
-        
-        
+        // Tyhjä callback - voit lisätä toiminnallisuuden myöhemmin
       });
       
       const unsubscribeUserLeft = socketService.onEvent('user-left', () => {
-        
-      
+        // Tyhjä callback - voit lisätä toiminnallisuuden myöhemmin
       });
       
       // Clean up on unmount or when notebook changes
@@ -218,7 +215,7 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
         unsubscribeUserLeft();
       };
     }
-  }, [activeNotebook?._id, activeNote?._id]);
+  }, [activeNotebook?._id, activeNote?._id, setNotes]); // Lisää setNotes riippuvuuksiin
 
   return (
     <div style={{ display: 'flex', height: '100%', width: '100%', flexDirection: 'column' }}>
