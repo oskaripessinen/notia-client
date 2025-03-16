@@ -37,7 +37,8 @@ jobs:
         run: npm install -g vercel@latest
 
       - name: Deploy to Vercel
-        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --yes
+        # Käytä = merkkiä ja aaltosulkeita
+        run: vercel --prod --token=${VERCEL_TOKEN} --yes
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
