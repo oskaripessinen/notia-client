@@ -38,7 +38,7 @@ jobs:
           CI: false
 
       - name: Install Vercel CLI
-        run: npm install --gloval vercel
+        run: npm install --global vercel
 
       - name : Pull Vercel Enviroment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} 
