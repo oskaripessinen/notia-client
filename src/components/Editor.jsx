@@ -192,13 +192,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
       // Set up handlers for real-time events
       const unsubscribeNoteUpdated = socketService.onEvent('note-updated', (data) => {
         if (data.noteId === activeNote?._id) {
-          // Update the note data if it's the active note
-          // This ensures we don't override the user's current changes
-          if (data.title) {
-            
-            
-            
-          }
           
           if (data.content) {
             setNotes({

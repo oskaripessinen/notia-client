@@ -1,29 +1,56 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import Editor from '../Editor';
-import { act } from 'react-dom/test-utils';
 
-// Mock socket service
-jest.mock('../../services/socketService', () => ({
-  joinNotebook: jest.fn(),
-  onEvent: jest.fn(() => jest.fn()),
-  updateNote: jest.fn(),
-}));
+// Define a helper function to create unsubscribe functions
+const noop = () => {};
 
-// Mock note service
+// Mock socketService
+jest.mock('../../services/socketService', () => {
+  const mockNoop = () => {};
+  
+  return {
+    joinNotebook: jest.fn(),
+    leaveNotebook: jest.fn(),
+    onEvent: jest.fn().mockImplementation(() => mockNoop),
+    updateNote: jest.fn(),
+    handleNotebookSync: jest.fn().mockReturnValue(mockNoop)
+  };
+});
+
+// Mock noteService
 jest.mock('../../services/noteService', () => ({
   updateNote: jest.fn().mockResolvedValue({ _id: 'note1', title: 'Updated Note' }),
   shareNotebook: jest.fn().mockResolvedValue({ success: true }),
 }));
 
+jest.mock('../../services/userService', () => ({
+  getUsersByIds: jest.fn().mockResolvedValue([
+    { _id: 'user1', email: 'user1@example.com', displayName: 'User 1' }
+  ])
+}));
+
 // Mock FontAwesome
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: () => <span>icon</span>
+  FontAwesomeIcon: ({ icon }) => {
+    const iconName = icon?.iconName || 'default-icon';
+    return <span data-testid={`icon-${iconName}`}>icon</span>;
+  }
 }));
 
 // Mock ShareModal
 jest.mock('../ShareModal', () => {
   return function DummyShareModal({ isOpen }) {
     return isOpen ? <div data-testid="share-modal">Share Modal</div> : null;
+  };
+});
+
+// Käytetään jest.spyOn:ia mockata useEffect
+jest.mock('react', () => {
+  const originalReact = jest.requireActual('react');
+  return {
+    ...originalReact,
+    useEffect: jest.fn(originalReact.useEffect),
   };
 });
 
@@ -42,50 +69,80 @@ describe('Editor Component', () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
+    act(() => {
+      jest.runAllTimers();
+    });
     jest.useRealTimers();
   });
 
-  test('renders editor with note title and content', () => {
-    render(<Editor {...mockProps} />);
+  test('renders editor with note title and content', async () => {
+    await act(async () => {
+      render(<Editor {...mockProps} />);
+      jest.runAllTimers();
+    });
     
     const titleInput = screen.getByDisplayValue('Test Note');
     expect(titleInput).toBeInTheDocument();
     
-    // Look for content
     const contentInput = screen.getByDisplayValue('Content line 1');
     expect(contentInput).toBeInTheDocument();
   });
 
-  test('updates title when input changes', () => {
-    render(<Editor {...mockProps} />);
+  test('updates title when input changes', async () => {
+    await act(async () => {
+      render(<Editor {...mockProps} />);
+      jest.runAllTimers();
+      await Promise.resolve();
+    });
     
     const titleInput = screen.getByDisplayValue('Test Note');
-    fireEvent.change(titleInput, { target: { value: 'Updated Title' } });
+    await act(async () => {
+      fireEvent.change(titleInput, { target: { value: 'Updated Title' } });
+      jest.runAllTimers();
+      await Promise.resolve();
+    });
     
     expect(mockProps.handleTitleChange).toHaveBeenCalledWith('Updated Title');
   });
 
   test('shows share modal when share action is selected', async () => {
-    render(<Editor {...mockProps} />);
+    await act(async () => {
+      render(<Editor {...mockProps} />);
+      jest.runAllTimers();
+      await Promise.resolve();
+    });
     
-    // Open dropdown 
-    const dropdownToggle = screen.getByRole('button', { name: /icon/i });
-    fireEvent.click(dropdownToggle);
+    // Oletetaan, että share-painikkeen luokka on .editor-share-button
+    const dropdownToggle = document.querySelector('.editor-share-button');
+    expect(dropdownToggle).not.toBeNull();
     
-    // Select share action - need to find the Share text
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+      jest.runAllTimers();
+      await Promise.resolve();
+    });
+    
+    // Oletetaan, että Share-tekstiä käytetään valinnan tunnistamiseen
     const shareOption = screen.getByText('Share');
-    fireEvent.click(shareOption);
+    await act(async () => {
+      fireEvent.click(shareOption);
+      jest.runAllTimers();
+      await Promise.resolve();
+    });
     
-    // Now the share modal should be visible
     expect(screen.getByTestId('share-modal')).toBeInTheDocument();
   });
 
-  test('displays empty state when no note is selected', () => {
-    render(<Editor {...mockProps} activeNote={null} activeNotebook={null} />);
+  test('displays empty state when no note is selected', async () => {
+    await act(async () => {
+      render(<Editor {...mockProps} activeNote={null} activeNotebook={null} />);
+      jest.runAllTimers();
+      await Promise.resolve();
+    });
     
     expect(screen.getByText('Select a notebook to start writing')).toBeInTheDocument();
   });

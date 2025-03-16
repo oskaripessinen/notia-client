@@ -50,7 +50,7 @@ describe('AuthModal Component', () => {
       />
     );
     
-    fireEvent.click(screen.getByRole('button', { name: /close/i }));
+    fireEvent.click(screen.getByTestId('close-button'));
     expect(onCloseMock).toHaveBeenCalledTimes(1);
   });
 

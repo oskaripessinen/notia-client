@@ -56,16 +56,8 @@ const Notes = () => {
         
         navigate('/login'); // Redirect on error after retries
       } finally {
-        
-        if (retryCount === 2) {
-          setLoading(false); // Always mark loading as complete after all retries
-        } else {
-          // Use a local variable instead of referencing the state
-          const isAuthenticated = true; // We're in the success path
-          if (isAuthenticated) {
-            setLoading(false);
-          }
-        }
+        // Always set loading to false after the operation completes
+        setLoading(false);
       }
     };
     
@@ -103,19 +95,13 @@ const Notes = () => {
     // Clean up interval on component unmount
     return () => clearInterval(authCheckInterval);
     
-    function checkAuthStatus() {
-      AuthService.checkAuthStatus()
-        .then(response => {
-          if (!response.authenticated) {
-            // Clear any client-side auth state
-            localStorage.removeItem("userLoggedIn");
-            // Redirect to login
-            navigate("/login");
-          }
-        })
-        .catch(error => {
+    async function checkAuthStatus() {
+      const authStatus = await AuthService.checkAuthStatus()
+      
+        if (!authStatus || !authStatus.authenticated) {
           navigate("/login");
-        });
+        }
+        
     }
   }, [navigate]);
 

@@ -10,7 +10,7 @@ function AuthModal({ isOpen, onClose, type, onToggle }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>
+        <button className="modal-close" data-testid="close-button" onClick={onClose}>
           <FontAwesomeIcon style={{ fontSize: "1.5rem" }} icon={faXmark} />
         </button>
         {type === "login" ? (

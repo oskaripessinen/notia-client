@@ -36,7 +36,7 @@ describe('FrontPage Component', () => {
     render(<FrontPage />);
     
     const signupButtons = screen.getAllByRole('button', { name: /get notia free/i });
-    fireEvent.click(signupButtons[0]); // Click the first one
+    fireEvent.click(signupButtons[0]);
     
     expect(screen.getByTestId('auth-modal-signup')).toBeInTheDocument();
   });
