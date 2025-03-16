@@ -1,57 +1,43 @@
-name: Deploy to Vercel
+name: Deploy Frontend to Vercel
 
 on:
   push:
     branches:
       - main
-  # Voit halutessasi käynnistää myös manuaalisesti
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # Hae koodit repositorysta
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Asenna Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          
-      # Vaihda työhakemistoa client-kansioon
-      - name: Change to client directory
-        run: cd notia-client
-        
-      # Asenna riippuvuudet
-      - name: Install Dependencies
-        run: |
-          cd notia-client
-          npm ci
-          
-      # Suorita lint-korjaukset
-      - name: Run ESLint
-        run: |
-          cd notia-client
-          npm run lint:fix
-          
-      # Buildaa sovellus
-      - name: Build
-        run: |
-          cd notia-client
-          npm run build
-          
-      # Asenna Vercel CLI
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Linting
+        run: npm run lint:fix
+
+      - name: Run tests
+        run: npm test -- --passWithNoTests
+
+      - name: Build Project
+        run: npm run build
+        env:
+          CI: false
+
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
-        
-      # Deploy Vercel käyttäen tokenia
+
       - name: Deploy to Vercel
-        run: |
-          cd notia-client
-          vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --yes
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
