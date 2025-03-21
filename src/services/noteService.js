@@ -87,21 +87,21 @@ const createNote = async (notebookId, noteData) => {
   }
 };
 
-// Update the updateNote function
+
 const updateNote = async (notebookId, noteId, updateData) => {
     if (!notebookId || !noteId) {
       throw new Error('Missing notebook or note ID');
     }
 
-    // Ensure IDs are in the correct format
+    
     const formattedNoteId = noteId.toString();
     const formattedNotebookId = notebookId.toString();
     
-    // Clean up the update data to avoid potential schema conflicts
+    
     const cleanedData = {
       title: updateData.title || '',
       content: Array.isArray(updateData.content) ? updateData.content : [''],
-      // Don't include the notebook reference to avoid potential conflicts
+      
     };
     
     const response = await axios.put(
@@ -116,7 +116,6 @@ const updateNote = async (notebookId, noteId, updateData) => {
     );
 
     if (response.data) {
-      // Map MongoDB _id to id for consistency
       return {
         ...response.data,
         id: response.data._id,
@@ -139,6 +138,20 @@ const deleteNote = async (notebookId, noteId) => {
     return null;
   }
 }
+
+const deleteNotebook = async (notebookId) => {
+
+  const response = await axios.delete(
+    `${baseUrl}/notebooks/${notebookId}`,
+    { withCredentials: true }
+  );
+
+  if (response.data) {
+    return response.data;
+  }
+
+  
+};
 
 // Add the fetchNote function
 const fetchNote = async (notebookId, noteId) => {
@@ -183,11 +196,9 @@ const removeNotebookShare = async (notebookId, userId) => {
 // Subscribe to updates for a specific notebook.
 const subscribeToNotebookUpdates = (notebookId, callback) => {
   socket.on('notebooksUpdated', (data) => {
-    // Check if the update contains notebook data and matches the targeted notebookId
     if (data.notebook && data.notebook._id === notebookId) {
       callback(data.notebook);
     } else if (data.notebookId && data.notebookId === notebookId && data.action === 'delete') {
-      // Handle deletion event by notifying that the notebook is gone
       callback(null);
     }
   });
@@ -213,7 +224,8 @@ const noteService = {
   unsubscribeFromNotebookUpdates,
   deleteNote,
   shareNotebook,
-  removeNotebookShare
+  removeNotebookShare,
+  deleteNotebook
 };
 
 export default noteService;

@@ -2,18 +2,27 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
 import NoteBox from './NoteBox';
 import '../styles/editor.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faCloud, faTrash, faLink, faUserGroup, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faCloud, faTrash, faShareNodes, faUserGroup, faLock } from '@fortawesome/free-solid-svg-icons';
 import noteService from '../services/noteService';
-import ShareModal from './ShareModal';
 import userService from '../services/userService';
 import socketService from '../services/socketService';
 
-const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitleChange, activeNote, handleDeleteNote, setNotes, updateNoteInLocalState }) => {
+const Editor = ({ 
+  notes,
+  handleChange, 
+  handleKeyDown, 
+  activeNotebook, 
+  handleTitleChange, 
+  activeNote, 
+  handleDeleteNote, 
+  setNotes, 
+  updateNoteInLocalState,
+  setIsShareModalOpen,
+}) => {
   const titleRef = useRef(null);
   const updateTimeoutRef = useRef(null);
   const [saveStatus, setSaveStatus] = useState('saved'); 
   const [showDropdown, setShowDropdown] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [sharedUsers, setSharedUsers] = useState([]);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -52,10 +61,7 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
     }
   };
 
-  const handleShareNoteBook = (email) => {
-    noteService.shareNotebook(activeNotebook._id, [email])
 
-  };
 
   const debouncedUpdate = useCallback((title, content) => {
     if (updateTimeoutRef.current) {
@@ -277,7 +283,7 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
                     <FontAwesomeIcon icon={faTrash} size='sm' /> Delete
                   </li>
                   <li onClick={() => handleMenuAction('share')}>
-                    <FontAwesomeIcon icon={faLink} /> Share
+                    <FontAwesomeIcon icon={faShareNodes} /> Share
                   </li>
                 </ul>
               </div>
@@ -317,12 +323,6 @@ const Editor = ({ notes, handleChange, handleKeyDown, activeNotebook, handleTitl
         </div>
       </div>
       
-      <ShareModal 
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        notebook={activeNotebook}  
-        onShare={handleShareNoteBook}  
-      />
     </div>
   );
 };

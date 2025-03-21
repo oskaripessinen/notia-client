@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight, faChevronDown, faPlus, faEllipsisVertical, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faChevronDown, faPlus, faEllipsisVertical, faTrash, faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import noteService from '../services/noteService'; // Import noteService
 import '../styles/sidebar.css';
 
@@ -15,14 +15,18 @@ const Sidebar = ({
   user,
   isAddingNotebook,
   setIsAddingNotebook,
-  handleAddNotebook 
+  handleAddNotebook,
+  setIsShareModalOpen,
 }) => {
   // State declarations
   const [newNotebookTitle, setNewNotebookTitle] = useState('');
   const [expandedNotebooks, setExpandedNotebooks] = useState({});
   const [addingNoteToNotebook, setAddingNoteToNotebook] = useState(null);
   const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [dropdownNotebookId, setDropdownNotebookId] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const inputContainerRef = useRef(null);
+
 
   // Notebook related functions
   const toggleNotebook = (notebookId) => {
@@ -69,6 +73,14 @@ const Sidebar = ({
       setAddingNoteToNotebook(notebook._id);
       // Clear the active note to avoid any stale references
       setActiveNote(null);
+    }
+  };
+
+  const handleDeleteNotebook = async (notebookId) => {
+    const response = await noteService.deleteNotebook(notebookId);
+    if (response) {
+      const updatedNotebooks = await noteService.fetchNotebooks();
+      setNotebooks(updatedNotebooks);
     }
   };
 
@@ -184,6 +196,9 @@ const Sidebar = ({
             <div 
               className="notebook-header"
               onClick={() => handleNotebookClick(notebook)}
+              onMouseLeave={() => {
+                setDropdownNotebookId(null);
+              }}
             >
               <div className="notebook-header-left">
                 <span 
@@ -207,7 +222,10 @@ const Sidebar = ({
                   className="notebook-action-button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    
+                    setDropdownPosition({ top: e.clientY, left: e.clientX });
+                    setDropdownNotebookId(currentId => 
+                      currentId === notebook._id ? null : notebook._id
+                    );
                   }}
                 >
                   <FontAwesomeIcon icon={faEllipsisVertical} size="xs" />
@@ -216,22 +234,61 @@ const Sidebar = ({
                   className="notebook-action-button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setAddingNoteToNotebook(notebook._id); // Use _id instead of id
-                    openNotebook(notebook._id); // Use openNotebook to ensure it's open
+                    setAddingNoteToNotebook(notebook._id); 
+                    openNotebook(notebook._id); 
                   }}
                 >
                   <FontAwesomeIcon icon={faPlus} size="xs" />
                 </button>
+                {dropdownNotebookId === notebook._id && (
+                  <div 
+                    className="notebook-dropdown"
+                    style={{
+                      position: 'fixed',
+                      top: `${dropdownPosition.top}px`,
+                      left: `${dropdownPosition.left}px`,
+                      transform: 'translate(0, 8px)',
+                      borderRadius: '4px',
+                    }}
+                  >
+
+                    <button 
+                      className="dropdown-item delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDropdownNotebookId(null);
+                        handleDeleteNotebook(notebook._id);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faTrash} size="xs" />
+                      <span>Delete</span>
+                    </button>
+
+                    <button 
+                      className="dropdown-item"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDropdownNotebookId(null);
+                        setIsShareModalOpen(true);
+
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faShareNodes} size="xs" />
+                      <span>Share</span>
+                    </button>
+                    
+                  </div>
+                )}
               </div>
             </div>
-            {expandedNotebooks[notebook._id] && ( // Use _id instead of id
+            {expandedNotebooks[notebook._id] && ( 
               <div className="notes-list">
                 {(notebook.notes || []).map((note) => (
                   <div 
                     key={getUniqueKey(notebook, note)}
                     className={`note-item ${
-                      (activeNote?._id === note._id) && // Use _id instead of id
-                      activeNote?.notebookId === notebook._id ? // Use _id instead of id
+                      (activeNote?._id === note._id) && 
+                      activeNote?.notebookId === notebook._id ?
                       'active' : ''
                     }`}
                   >
@@ -243,13 +300,13 @@ const Sidebar = ({
                     </div>
                     <button
                       className="note-delete-button"
-                      onClick={(e) => handleDeleteNote(e, note._id, notebook._id)} // Use _id instead of id
+                      onClick={(e) => handleDeleteNote(e, note._id, notebook._id)}
                     >
                       <FontAwesomeIcon icon={faTrash} size="xs" />
                     </button>
                   </div>
                 ))}
-                {addingNoteToNotebook === notebook._id && ( // Use _id instead of id
+                {addingNoteToNotebook === notebook._id && ( 
                   <div className="note-input-container">
                     <input
                       type="text"
@@ -257,7 +314,7 @@ const Sidebar = ({
                       onChange={(e) => setNewNoteTitle(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                          handleAddNote(notebook._id); // Use _id
+                          handleAddNote(notebook._id);
                         } else if (e.key === 'Escape') {
                           setAddingNoteToNotebook(null);
                           setNewNoteTitle('');

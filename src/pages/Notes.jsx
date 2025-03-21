@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthService from '../services/authService';
 import Sidebar from '../components/SideBar';
 import Editor from '../components/Editor';
+import ShareModal from '../components/ShareModal';
 import noteService from '../services/noteService';
 import '../styles/notes.css';
 import socketService from '../services/socketService';
@@ -15,6 +16,7 @@ const Notes = () => {
   const [activeNote, setActiveNote] = useState(null);
   const [notebooks, setNotebooks] = useState([]);
   const [isAddingNotebook, setIsAddingNotebook] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   
   const navigate = useNavigate(); 
 
@@ -204,10 +206,15 @@ const Notes = () => {
     }
   };
 
+  const handleShareNoteBook = (email) => {
+      noteService.shareNotebook(activeNotebook._id, [email])
+  
+    };
+
   const handleDeleteNote = async (e, noteId, notebookId) => {
     e.stopPropagation();
 
-   
+    await noteService.deleteNote(notebookId, noteId);
     const notebook = notebooks.find(nb => nb._id === notebookId);
     const deletedNoteIndex = notebook.notes.findIndex(note => note._id === noteId);
     
@@ -438,6 +445,7 @@ const Notes = () => {
         handleAddNotebook={handleAddNotebook}
         user={user}
         handleDeleteNote={handleDeleteNote}
+        setIsShareModalOpen={setIsShareModalOpen}
       />
       <Editor 
         activeNote={activeNote}
@@ -449,6 +457,13 @@ const Notes = () => {
         handleDeleteNote={handleDeleteNote}
         setNotes={setNotes}
         updateNoteInLocalState={updateNoteInLocalState}
+        setIsShareModalOpen={setIsShareModalOpen}
+      />
+      <ShareModal 
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        notebook={activeNotebook}  
+        onShare={handleShareNoteBook}  
       />
     </div>
   );

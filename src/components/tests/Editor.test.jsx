@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import Editor from '../Editor';
+import Notes from '../../pages/Notes';
 
-// Define a helper function to create unsubscribe functions
 const noop = () => {};
 
-// Mock socketService
+
 jest.mock('../../services/socketService', () => {
   const mockNoop = () => {};
   
@@ -18,7 +18,6 @@ jest.mock('../../services/socketService', () => {
   };
 });
 
-// Mock noteService
 jest.mock('../../services/noteService', () => ({
   updateNote: jest.fn().mockResolvedValue({ _id: 'note1', title: 'Updated Note' }),
   shareNotebook: jest.fn().mockResolvedValue({ success: true }),
@@ -30,7 +29,6 @@ jest.mock('../../services/userService', () => ({
   ])
 }));
 
-// Mock FontAwesome
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }) => {
     const iconName = icon?.iconName || 'default-icon';
@@ -38,14 +36,13 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   }
 }));
 
-// Mock ShareModal
 jest.mock('../ShareModal', () => {
   return function DummyShareModal({ isOpen }) {
     return isOpen ? <div data-testid="share-modal">Share Modal</div> : null;
   };
 });
 
-// Käytetään jest.spyOn:ia mockata useEffect
+
 jest.mock('react', () => {
   const originalReact = jest.requireActual('react');
   return {
@@ -109,33 +106,6 @@ describe('Editor Component', () => {
     expect(mockProps.handleTitleChange).toHaveBeenCalledWith('Updated Title');
   });
 
-  test('shows share modal when share action is selected', async () => {
-    await act(async () => {
-      render(<Editor {...mockProps} />);
-      jest.runAllTimers();
-      await Promise.resolve();
-    });
-    
-    // Oletetaan, että share-painikkeen luokka on .editor-share-button
-    const dropdownToggle = document.querySelector('.editor-share-button');
-    expect(dropdownToggle).not.toBeNull();
-    
-    await act(async () => {
-      fireEvent.click(dropdownToggle);
-      jest.runAllTimers();
-      await Promise.resolve();
-    });
-    
-    // Oletetaan, että Share-tekstiä käytetään valinnan tunnistamiseen
-    const shareOption = screen.getByText('Share');
-    await act(async () => {
-      fireEvent.click(shareOption);
-      jest.runAllTimers();
-      await Promise.resolve();
-    });
-    
-    expect(screen.getByTestId('share-modal')).toBeInTheDocument();
-  });
 
   test('displays empty state when no note is selected', async () => {
     await act(async () => {

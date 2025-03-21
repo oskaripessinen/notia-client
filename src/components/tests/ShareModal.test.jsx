@@ -44,24 +44,21 @@ describe('ShareModal Component', () => {
   };
 
   test('renders share modal with notebook title', async () => {
-    // Renderöi komponentti act():n sisällä
     await act(async () => {
       render(<ShareModal {...mockProps} />);
     });
     
-    // Käytä joustavampaa hakua, joka sallii tekstin jakautumisen useampaan osaan
-    // Vaihtoehto 1: Regex-pohjainen haku
+
     expect(screen.getByText(/Share .* with others/)).toBeInTheDocument();
     
-    // Tai tarkempi vaihtoehto 2: Function-pohjainen haku
+
     expect(screen.getByText((content, element) => {
       return element.tagName.toLowerCase() === 'p' && 
              content.includes('Share') && 
              content.includes('Test Notebook') && 
              content.includes('with others');
     })).toBeInTheDocument();
-    
-    // Odota että käyttäjäsähköpostit latautuvat
+
     const userEmail = await screen.findByText('user1@example.com', {}, { timeout: 3000 });
     expect(userEmail).toBeInTheDocument();
   });
@@ -71,7 +68,7 @@ describe('ShareModal Component', () => {
       render(<ShareModal {...mockProps} />);
     });
     
-    // Käytä await findByPlaceholderText hakemaan elementti kun se on saatavilla
+
     const emailInput = await screen.findByPlaceholderText(/enter email and press enter to share/i);
     
     await act(async () => {
@@ -82,10 +79,10 @@ describe('ShareModal Component', () => {
       fireEvent.keyDown(emailInput, { key: 'Enter' });
     });
     
-    // Varmista että onShare kutsuttiin oikeilla parametreilla
+
     expect(mockProps.onShare).toHaveBeenCalledWith(['newuser@example.com']);
     
-    // Odota että input tyhjenee onnistuneen operaation jälkeen
+
     await waitFor(() => {
       expect(emailInput.value).toBe('');
     });
@@ -103,7 +100,6 @@ describe('ShareModal Component', () => {
       fireEvent.keyDown(emailInput, { key: 'Enter' });
     });
     
-    // Tarkista että virheviesti näytetään
     expect(screen.getByText(/please enter a valid email address/i)).toBeInTheDocument();
     expect(mockProps.onShare).not.toHaveBeenCalled();
   });
