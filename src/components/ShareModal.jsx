@@ -108,7 +108,7 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
       <div className="share-modal" ref={modalRef}>
         <div className="share-modal-header">
           <h3>Share Notebook</h3>
-          <button className="close-button" onClick={onClose}>
+          <button className="close-button" onClick={onClose} data-testid="close-button">
             <FontAwesomeIcon icon={faXmark} />
           </button>
         </div>
@@ -148,10 +148,6 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="share-modal-footer">
-          <button className="cancel-button" onClick={onClose}>Close</button>
         </div>
       </div>
     </div>

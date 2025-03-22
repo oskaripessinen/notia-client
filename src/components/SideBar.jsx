@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight, faChevronDown, faPlus, faEllipsisVertical, faTrash, faShareNodes } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faChevronDown, faPlus, faEllipsisVertical, faTrash, faShareNodes, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import noteService from '../services/noteService'; // Import noteService
 import '../styles/sidebar.css';
+import AuthService from '../services/authService';
+
+
 
 const Sidebar = ({
   handleDeleteNote,
@@ -18,13 +22,15 @@ const Sidebar = ({
   handleAddNotebook,
   setIsShareModalOpen,
 }) => {
-  // State declarations
+  const navigate = useNavigate(); 
+
   const [newNotebookTitle, setNewNotebookTitle] = useState('');
   const [expandedNotebooks, setExpandedNotebooks] = useState({});
   const [addingNoteToNotebook, setAddingNoteToNotebook] = useState(null);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [dropdownNotebookId, setDropdownNotebookId] = useState(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [userDropdown, setUserDropdown] = useState(false);
   const inputContainerRef = useRef(null);
 
 
@@ -35,6 +41,11 @@ const Sidebar = ({
       [notebookId]: !prev[notebookId]
     }));
   };
+
+  const logout = async () => {
+    await AuthService.logout();
+    navigate('/login');
+  }
 
   const openNotebook = (notebookId) => {
     setExpandedNotebooks(prev => {
@@ -160,9 +171,17 @@ const Sidebar = ({
       }
     };
 
+    const handleClickOutsideUserMenu = (event) => {
+      if (!event.target.closest('.user-menu-container')) {
+        setUserDropdown(false);
+      }
+    };
+  
+    document.addEventListener('mousedown', handleClickOutsideUserMenu);
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutsideUserMenu);
     };
   }, );
 
@@ -180,14 +199,36 @@ const Sidebar = ({
           <h2>Notia</h2>
         </div>
         <div className="header-right">
-          <button className="add-button">
-            <FontAwesomeIcon icon={faChevronDown} size="xs" />
-          </button>
-          {user && (
-            <div className="user-avatar">
-              {user.displayName.split(' ')[0].charAt(0).toUpperCase()}
-            </div>
-          )}
+          <div className="user-menu-container">
+            <button 
+              className="add-button" 
+              onClick={() => setUserDropdown(!userDropdown)}
+              aria-label="user menu"
+            >
+              <FontAwesomeIcon icon={faChevronDown} size="xs" />
+            </button>
+            {user && (
+              <div className="user-avatar">
+                {user.displayName.split(' ')[0].charAt(0).toUpperCase()}
+              </div>
+            )}
+            {userDropdown && (
+              <div className="user-dropdown">
+                <div className="user-dropdown-header">
+                  {user.displayName}
+                </div>
+                <button 
+                  className="dropdown-item"
+                  onClick={() => {
+                    logout();
+                  }}
+                >
+                  <FontAwesomeIcon icon={faRightFromBracket} size="sm" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div className="notebooks-list">

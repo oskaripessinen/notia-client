@@ -109,7 +109,7 @@ describe('ShareModal Component', () => {
       render(<ShareModal {...mockProps} />);
     });
     
-    const closeButton = await screen.findByRole('button', { name: /close/i });
+    const closeButton = await screen.findByTestId('close-button');
     
     await act(async () => {
       fireEvent.click(closeButton);
