@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faPlus } from '@fortawesome/free-solid-svg-icons';
 import '../styles/shareModal.css';
 import userService from '../services/userService';
 
-const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
+const ShareModal = ({ isOpen, onClose, notebook, onShare, currentUser }) => {
   const [emails, setEmails] = useState([]);
   const [currentEmail, setCurrentEmail] = useState('');
   const [error, setError] = useState('');
@@ -13,28 +13,33 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
   const modalRef = useRef(null);
   const emailInputRef = useRef(null);
 
-  // Fetch user emails when modal opens
   useEffect(() => {
     const fetchUserEmails = async () => {
-      if (isOpen && notebook && notebook.users && notebook.users.length > 0) {
+      if (isOpen && notebook) { // Remove the check for notebook.users.length
         try {
-          const userDetails = await userService.getUsersByIds(notebook.users);
-          const userEmails = userDetails.map(user => user.email).filter(Boolean);
-          setEmails(userEmails);
+          // If no users yet, use an empty array
+          const users = notebook.users || [];
+          if (users.length > 0) {
+            const userDetails = await userService.getUsersByIds(users);
+            const userEmails = userDetails
+              .map(user => user.email)
+              .filter(email => email && email !== currentUser.email);
+            setEmails(userEmails);
+          } else {
+            setEmails([]);
+          }
         } catch (error) {
           setError('Failed to load current users');
         }
-      } else if (isOpen) {
-        // Reset emails if modal opens without users
-        setEmails([]);
       }
     };
-    
-    fetchUserEmails();
-  }, [isOpen, notebook]);
+
+    if (isOpen) {
+      fetchUserEmails();
+    }
+  }, [isOpen, notebook, currentUser]);
 
   useEffect(() => {
-    // Focus the email input when the modal opens
     if (isOpen && emailInputRef.current) {
       emailInputRef.current.focus();
     }
@@ -74,10 +79,7 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
 
     try {
       setSharing(true);
-      // Share with just this new email
       await onShare([currentEmail]);
-      
-      // If sharing successful, update the UI
       setEmails([...emails, currentEmail]);
       setCurrentEmail('');
       setError('');
@@ -95,11 +97,6 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
     }
   };
 
-  const handleRemoveEmail = (email) => {
-    // Note: This would typically involve an API call to remove share permission
-    // For now, we just update the UI
-    setEmails(emails.filter(e => e !== email));
-  };
 
   if (!isOpen) return null;
 
@@ -120,7 +117,7 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
             <input
               ref={emailInputRef}
               type="email"
-              placeholder="Enter email and press Enter to share"
+              placeholder="Enter email"
               value={currentEmail}
               onChange={(e) => setCurrentEmail(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -141,10 +138,7 @@ const ShareModal = ({ isOpen, onClose, notebook, onShare }) => {
           <div className="email-chips-container">
             {emails.map((email, index) => (
               <div className="email-chip" key={index}>
-                <span>{email}</span>
-                <button onClick={() => handleRemoveEmail(email)}>
-                  <FontAwesomeIcon icon={faTimes} />
-                </button>
+                {email}
               </div>
             ))}
           </div>

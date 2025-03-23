@@ -11,13 +11,13 @@
     resize: none;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.1s ease-in-out;
+    transition: border-color 0.2s ease-in-out;
 }
 
 .note-boxx:hover {
-    border-color: #4e4e4e;
+    border-color: #373737;
 }
 
 .note-boxx:focus {
-    border-color: #565656;
+    border-color: #4d4d4d;
 }

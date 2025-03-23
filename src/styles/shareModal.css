@@ -82,13 +82,12 @@
   border: 1px solid #3a3a3a;
   background-color: #333333;
   color: #ffffff;
-  border-radius: 4px 0 0 4px;
+  border-radius: 8px 0 0 8px;
   font-size: 1rem;
 }
 
 .email-input-container input:focus {
   outline: none;
-  border-color: #5a5af3;
 }
 
 .add-email-button {
@@ -96,7 +95,7 @@
   background-color: #5a5af3;
   color: white;
   border: none;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 8px 8px 0;
   cursor: pointer;
   transition: background-color 0.2s;
 }

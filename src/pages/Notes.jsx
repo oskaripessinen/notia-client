@@ -73,25 +73,19 @@ const Notes = () => {
 
   // Then update the useEffect with the memoized function in its dependency array
   useEffect(() => {
-    // Initial check
+
     checkForNewNotebooks();
-    
-    // Set up polling every 15 seconds (changed from 30)
     const pollingInterval = setInterval(() => {
       checkForNewNotebooks();
-    }, 15000); // 15 seconds
+    }, 15000);
     
     return () => clearInterval(pollingInterval);
-  }, [checkForNewNotebooks]); // Include checkForNewNotebooks in the dependency array
+  }, [checkForNewNotebooks]);
 
   useEffect(() => {
-    // Initial auth check when component loads
+
     checkAuthStatus();
-    
-    // Set up periodic authentication check
     const authCheckInterval = setInterval(checkAuthStatus, 10000); // Check every 10 seconds
-    
-    // Clean up interval on component unmount
     return () => clearInterval(authCheckInterval);
     
     async function checkAuthStatus() {
@@ -106,11 +100,10 @@ const Notes = () => {
 
   useEffect(() => {
     if (activeNotebook?._id) {
-      // Set up sync handler
+
       const unsubscribeSyncHandler = socketService.handleNotebookSync((updatedNotebook) => {
         setActiveNotebook(updatedNotebook);
         
-        // If we have an active note, find its updated version
         if (activeNote?._id) {
           const updatedNote = updatedNotebook.notes.find(n => n._id === activeNote._id);
           if (updatedNote) {
@@ -206,8 +199,22 @@ const Notes = () => {
     }
   };
 
-  const handleShareNoteBook = (email) => {
-      noteService.shareNotebook(activeNotebook._id, [email])
+  const handleShareNoteBook = async (email) => {
+      
+    const response = await noteService.shareNotebook(activeNotebook._id, [email]);
+    
+    if (!response || !response.notebook) {
+      throw new Error('Invalid response from server');
+    }
+
+    setActiveNotebook(response.notebook);
+
+    setNotebooks(prevNotebooks => 
+      prevNotebooks.map(nb => 
+        nb._id === response.notebook._id ? response.notebook : nb
+      )
+    );
+
   
     };
 
@@ -464,6 +471,7 @@ const Notes = () => {
         onClose={() => setIsShareModalOpen(false)}
         notebook={activeNotebook}  
         onShare={handleShareNoteBook}  
+        currentUser={user}
       />
     </div>
   );

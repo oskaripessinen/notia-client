@@ -209,13 +209,13 @@ const Sidebar = ({
             </button>
             {user && (
               <div className="user-avatar">
-                {user.displayName.split(' ')[0].charAt(0).toUpperCase()}
+                {user.displayName.toUpperCase()}
               </div>
             )}
             {userDropdown && (
               <div className="user-dropdown">
                 <div className="user-dropdown-header">
-                  {user.displayName}
+                  {user.email}
                 </div>
                 <button 
                   className="dropdown-item"

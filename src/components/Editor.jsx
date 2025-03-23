@@ -312,6 +312,7 @@ const Editor = ({
                   index={index}
                   handleChange={(value) => handleContentUpdate(index, value)}
                   handleKeyDown={(e) => handleNoteBoxKeyDown(e, index)}
+                  placeholder={index === 0 ? "Start typing..." : ""}
                 />
               ))}
             </>

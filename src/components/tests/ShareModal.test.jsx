@@ -12,14 +12,6 @@ jest.mock('../../services/userService', () => ({
   }
 }));
 
-// Mock noteService
-jest.mock('../../services/noteService', () => ({
-  __esModule: true,
-  default: {
-    shareNotebook: jest.fn().mockResolvedValue({ success: true })
-  }
-}));
-
 // Mock FontAwesome
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: () => <span>icon</span>
@@ -31,36 +23,39 @@ describe('ShareModal Component', () => {
     
     // Aseta mockattu vastaus jokaiselle testille
     userService.getUsersByIds.mockResolvedValue([
-      { _id: 'user1', email: 'user1@example.com' },
-      { _id: 'user2', email: 'user2@example.com' }
+      { _id: 'user1', email: 'user1@example.com' }
     ]);
   });
 
   const mockProps = {
     isOpen: true,
     onClose: jest.fn(),
-    notebook: { _id: 'notebook1', title: 'Test Notebook', users: ['user1', 'user2'] },
-    onShare: jest.fn().mockResolvedValue({ success: true })
+    notebook: { _id: 'notebook1', title: 'Test Notebook', users: ['user1'] },
+    onShare: jest.fn(),
+    currentUser: {
+      _id: 'currentUser',
+      email: 'current@example.com'
+    }
   };
 
-  test('renders share modal with notebook title', async () => {
+  test('renders share modal with notebook title and shared users', async () => {
     await act(async () => {
       render(<ShareModal {...mockProps} />);
     });
-    
 
-    expect(screen.getByText(/Share .* with others/)).toBeInTheDocument();
+    expect(screen.getByText('Share Notebook')).toBeInTheDocument();
     
-
-    expect(screen.getByText((content, element) => {
+    const shareText = screen.getByText((content, element) => {
       return element.tagName.toLowerCase() === 'p' && 
              content.includes('Share') && 
              content.includes('Test Notebook') && 
              content.includes('with others');
-    })).toBeInTheDocument();
+    });
+    expect(shareText).toBeInTheDocument();
 
-    const userEmail = await screen.findByText('user1@example.com', {}, { timeout: 3000 });
-    expect(userEmail).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('user1@example.com')).toBeInTheDocument();
+    });
   });
 
   test('allows adding new emails', async () => {
@@ -69,7 +64,7 @@ describe('ShareModal Component', () => {
     });
     
 
-    const emailInput = await screen.findByPlaceholderText(/enter email and press enter to share/i);
+    const emailInput = await screen.findByPlaceholderText(/enter email/i);
     
     await act(async () => {
       fireEvent.change(emailInput, { target: { value: 'newuser@example.com' } });
@@ -93,7 +88,7 @@ describe('ShareModal Component', () => {
       render(<ShareModal {...mockProps} />);
     });
     
-    const emailInput = await screen.findByPlaceholderText(/enter email and press enter to share/i);
+    const emailInput = await screen.findByPlaceholderText(/enter email/i);
     
     await act(async () => {
       fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
