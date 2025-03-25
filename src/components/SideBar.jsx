@@ -209,7 +209,7 @@ const Sidebar = ({
             </button>
             {user && (
               <div className="user-avatar">
-                {user.displayName.toUpperCase()}
+                {user.displayName[0].toUpperCase()}
               </div>
             )}
             {userDropdown && (
