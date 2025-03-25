@@ -170,6 +170,10 @@
     color: white;
     transition: all 0.3s ease;
   }
+
+  .dropdown-item.delete {
+    color: #ff4444;
+  }
   
   .dropdown-item:hover {
     background-color: #3a3a3a;
@@ -359,7 +363,6 @@
 }
 
 .add-notebook-button:hover {
-    background-color: #2c2c2c;
     color: #fff;
 }
 
@@ -425,8 +428,8 @@
 }
 
 .user-dropdown-header {
-  padding: 6px 16px;
-  font-size: 0.9rem;
+  padding: 8px 10px;
+  font-size: 0.8rem;
   border-bottom: 1px solid #3a3a3a;
   color: white;
   font-weight: 500;
@@ -434,10 +437,10 @@
 
 .user-dropdown .dropdown-item {
   display: flex;
-  font-size: 0.9rem;
-  align-items: center;
+  font-size: 0.8rem;
   width: 100%;
-  padding: 6px 16px;
+  padding: 8px 10px;
+  gap: 4px;
   border: none;
   background: none;
   color: white;

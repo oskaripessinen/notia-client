@@ -229,7 +229,64 @@
   color: #888;
 }
 
-/* Add constraint to keep tooltip inside editor even on small screens */
+.empty-state {
+  font-family: 'Poppins';
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex: 1;
+  width: 100%;
+}
+
+.empty-state p {
+  margin-top: 2rem;
+  margin-bottom: 0;
+  padding-bottom: 0.7rem;
+}
+
+.empty-state .notebook-icon {
+  width: 125px;
+  height: 125px;
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+}
+
+.create-notebook {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.3rem;
+  padding: 0.5rem 0.7rem;
+  color: black;
+  font-family: 'poppins';
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 1.5rem;
+  border: none;
+  background-color: white;
+  
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.create-notebook .add-button {
+  width: 20px;
+  height: 20px;
+ 
+}
+
+.create-notebook:hover .add-button {
+  filter: invert(100%);
+}
+
+.create-notebook:hover {
+  background-color: #1e1e1e;
+  color: white;
+}
+
 @media (max-width: 768px) {
   .users-tooltip {
     max-width: calc(100vw - 20px);

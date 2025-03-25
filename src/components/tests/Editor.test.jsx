@@ -62,6 +62,12 @@ describe('Editor Component', () => {
     handleDeleteNote: jest.fn(),
     setNotes: jest.fn(),
     updateNoteInLocalState: jest.fn(),
+    setIsShareModalOpen: jest.fn(),
+    setIsAddingNotebook: jest.fn(),
+    user: { 
+      displayName: 'Test User',
+      email: 'test@example.com'
+    }
   };
 
   beforeEach(() => {
@@ -114,6 +120,7 @@ describe('Editor Component', () => {
       await Promise.resolve();
     });
     
-    expect(screen.getByText('Select a notebook to start writing')).toBeInTheDocument();
+    expect(screen.getByText('Welcome to Notia Test.')).toBeInTheDocument();
+    expect(screen.getByText('Create a Notebook')).toBeInTheDocument();
   });
 });

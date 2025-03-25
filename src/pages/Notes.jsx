@@ -465,6 +465,8 @@ const Notes = () => {
         setNotes={setNotes}
         updateNoteInLocalState={updateNoteInLocalState}
         setIsShareModalOpen={setIsShareModalOpen}
+        setIsAddingNotebook={setIsAddingNotebook}
+        user={user}
       />
       <ShareModal 
         isOpen={isShareModalOpen}

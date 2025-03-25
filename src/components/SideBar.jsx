@@ -185,12 +185,12 @@ const Sidebar = ({
     };
   }, );
 
-  // Add validation for note IDs
+
     const getUniqueKey = (notebook, note) => {
-      if (!note || !note._id) { // Use _id instead of id
-        return `${notebook._id}-note-${Date.now()}-${Math.random()}`; // Use _id instead of id
+      if (!note || !note._id) { 
+        return `${notebook._id}-note-${Date.now()}-${Math.random()}`;
       }
-      return `${notebook._id}-${note._id}`; // Use _id instead of id
+      return `${notebook._id}-${note._id}`; 
     };
   return (
     <div className="sidebar">
@@ -223,7 +223,7 @@ const Sidebar = ({
                     logout();
                   }}
                 >
-                  <FontAwesomeIcon icon={faRightFromBracket} size="sm" />
+                  <FontAwesomeIcon icon={faRightFromBracket} color='#ff4444' size="sm" />
                   <span>Logout</span>
                 </button>
               </div>

@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import NoteBox from './NoteBox';
 import '../styles/editor.css';
+import notebookImage from '../assets/notebook.png';
+import addImg from '../assets/add.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis, faCloud, faTrash, faShareNodes, faUserGroup, faLock } from '@fortawesome/free-solid-svg-icons';
 import noteService from '../services/noteService';
@@ -18,6 +20,9 @@ const Editor = ({
   setNotes, 
   updateNoteInLocalState,
   setIsShareModalOpen,
+  setIsAddingNotebook,
+  user,
+
 }) => {
   const titleRef = useRef(null);
   const updateTimeoutRef = useRef(null);
@@ -279,7 +284,7 @@ const Editor = ({
             {showDropdown && (
               <div className="editor-dropdown">
                 <ul>
-                  <li onClick={(e) => handleDeleteNote(e, activeNote?._id, activeNotebook?._id)}>
+                  <li style={{color: "#ff4444"}} onClick={(e) => handleDeleteNote(e, activeNote?._id, activeNotebook?._id)}>
                     <FontAwesomeIcon icon={faTrash} size='sm' /> Delete
                   </li>
                   <li onClick={() => handleMenuAction('share')}>
@@ -318,7 +323,12 @@ const Editor = ({
             </>
           ) : (
             <div className="empty-state">
-              <p>Select a notebook to start writing</p>
+                <img src={notebookImage} alt="Notebook" className="notebook-icon" />
+              <p>Welcome to Notia {user.displayName.split(' ')[0]}.</p>
+              <button className='create-notebook' onClick={() => setIsAddingNotebook(true)}>
+                <img src={addImg} alt="" className="add-button" />
+                 Create a Notebook
+              </button>
             </div>
           )}
         </div>

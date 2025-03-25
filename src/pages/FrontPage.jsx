@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import AuthModal from '../components/AuthModal';
 import '../styles/frontPage.css';
+import notebookImage from '../assets/notebook.png';
 
 
 function FrontPage() {
@@ -18,7 +19,10 @@ function FrontPage() {
 	return (
 		<div className="frontpage-container">
 			<header className="frontpage-header">
-				<h1>Notia</h1>
+			<div style={{display: 'flex', flexDirection: "row", alignItems: "center", gap: "0.4rem"}}>
+			<img src={notebookImage} className='notebook-image' />
+			<h1>Notia</h1>
+			</div>
 				<div className="header-content">
 					<button className='login-button' onClick={() => {setModalType("login"); setModalOpen(true);}}>Log in</button>
 					<button className='signup-button' onClick={() => {setModalType("signup"); setModalOpen(true);}}>Get Notia free</button>
