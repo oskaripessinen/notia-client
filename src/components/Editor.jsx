@@ -1,10 +1,9 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import NoteBox from './NoteBox';
 import '../styles/editor.css';
-import notebookImage from '../assets/notebook.png';
 import addImg from '../assets/add.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faCloud, faTrash, faShareNodes, faUserGroup, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faCloud, faTrash, faShareNodes, faUserGroup, faLock, faBold, faItalic, faUnderline, faListUl, faListOl, faHeading } from '@fortawesome/free-solid-svg-icons';
 import noteService from '../services/noteService';
 import userService from '../services/userService';
 import socketService from '../services/socketService';
@@ -22,7 +21,6 @@ const Editor = ({
   setIsShareModalOpen,
   setIsAddingNotebook,
   user,
-
 }) => {
   const titleRef = useRef(null);
   const updateTimeoutRef = useRef(null);
@@ -31,6 +29,15 @@ const Editor = ({
   const dropdownRef = useRef(null);
   const [sharedUsers, setSharedUsers] = useState([]);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [activeNoteBoxIndex, setActiveNoteBoxIndex] = useState(0);
+  const [activeFormats, setActiveFormats] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    heading: false,
+    ul: false,
+    ol: false
+  });
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -65,8 +72,6 @@ const Editor = ({
         break;
     }
   };
-
-
 
   const debouncedUpdate = useCallback((title, content) => {
     if (updateTimeoutRef.current) {
@@ -149,15 +154,25 @@ const Editor = ({
     if ((e.key === 'ArrowDown' || e.key === 'Enter') && notes.content.length > 0) {
       e.preventDefault();
       const firstNoteBox = document.querySelector('[data-index="0"]');
-      if (firstNoteBox) firstNoteBox.focus();
+      if (firstNoteBox) {
+        firstNoteBox.focus();
+        // Place cursor at the end
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(firstNoteBox);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
   };
 
-  
   const handleNoteBoxKeyDown = (e, index) => {
     if (e.key === 'ArrowUp' && index === 0) {
       e.preventDefault();
       titleRef.current.focus();
+      // Set cursor at end of title
+      titleRef.current.setSelectionRange(titleRef.current.value.length, titleRef.current.value.length);
     } else {
       handleKeyDown(e, index);
     }
@@ -212,21 +227,105 @@ const Editor = ({
       });
       
       const unsubscribeUserJoined = socketService.onEvent('user-joined', () => {
-        // Tyhjä callback - voit lisätä toiminnallisuuden myöhemmin
+        
       });
       
       const unsubscribeUserLeft = socketService.onEvent('user-left', () => {
-        // Tyhjä callback - voit lisätä toiminnallisuuden myöhemmin
+      
       });
       
-      // Clean up on unmount or when notebook changes
       return () => {
         unsubscribeNoteUpdated();
         unsubscribeUserJoined();
         unsubscribeUserLeft();
       };
     }
-  }, [activeNotebook?._id, activeNote?._id, setNotes]); // Lisää setNotes riippuvuuksiin
+  }, [activeNotebook?._id, activeNote?._id, setNotes]);
+
+  const checkActiveFormats = () => {
+    if (!document.queryCommandState) return;
+    
+    setActiveFormats({
+      bold: document.queryCommandState('bold'),
+      italic: document.queryCommandState('italic'),
+      underline: document.queryCommandState('underline'),
+      heading: document.queryCommandValue('formatBlock') === 'h1',
+      ul: document.queryCommandState('insertUnorderedList'),
+      ol: document.queryCommandState('insertOrderedList')
+    });
+  };2
+
+  const handleFormatText = (format) => {
+    if (!document.execCommand) {
+      console.log('Command not supported');
+      return;
+    }
+
+    // Focus the active note box
+    const noteBox = document.querySelector(`[data-index="${activeNoteBoxIndex}"]`);
+    if (!noteBox) return;
+    
+    noteBox.focus();
+    
+    switch(format) {
+      case 'bold':
+        document.execCommand('bold', false, null);
+        break;
+      case 'italic':
+        document.execCommand('italic', false, null);
+        break;
+      case 'underline':
+        document.execCommand('underline', false, null);
+        break;
+      case 'heading':
+        // First check if we're in a list and exit it if needed
+        if (activeFormats.ul) {
+          document.execCommand('insertUnorderedList', false, null);
+        } else if (activeFormats.ol) {
+          document.execCommand('insertOrderedList', false, null);
+        }
+        
+        // Now toggle heading
+        if (activeFormats.heading) {
+          document.execCommand('formatBlock', false, '<p>');
+        } else {
+          document.execCommand('formatBlock', false, '<h1>');
+        }
+        break;
+      case 'ul':
+        // If heading is active, remove it before creating list
+        if (activeFormats.heading) {
+          document.execCommand('formatBlock', false, '<p>');
+        }
+        document.execCommand('insertUnorderedList', false, null);
+        break;
+      case 'ol':
+        // If heading is active, remove it before creating list
+        if (activeFormats.heading) {
+          document.execCommand('formatBlock', false, '<p>');
+        }
+        document.execCommand('insertOrderedList', false, null);
+        break;
+      default:
+        break;
+    }
+    
+    // Check which formats are active after the change
+    checkActiveFormats();
+    
+    // Update the note content with the new HTML
+    if (noteBox.innerHTML !== notes.content[activeNoteBoxIndex]) {
+      handleContentUpdate(activeNoteBoxIndex, noteBox.innerHTML);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('selectionchange', checkActiveFormats);
+    
+    return () => {
+      document.removeEventListener('selectionchange', checkActiveFormats);
+    };
+  }, []);
 
   return (
     <div style={{ display: 'flex', height: '100%', width: '100%', flexDirection: 'column' }}>
@@ -310,20 +409,69 @@ const Editor = ({
                 onKeyDown={handleTitleKeyDown}
                 placeholder="Untitled"
               />
+              
+              <div className="formatting-toolbar global-toolbar">
+                <button 
+                  className={`format-button ${activeFormats.bold ? 'active' : ''}`}
+                  onClick={() => handleFormatText('bold')}
+                  aria-label="Bold"
+                >
+                  <FontAwesomeIcon icon={faBold} />
+                </button>
+                <button 
+                  className={`format-button ${activeFormats.italic ? 'active' : ''}`}
+                  onClick={() => handleFormatText('italic')}
+                  aria-label="Italic"
+                >
+                  <FontAwesomeIcon icon={faItalic} />
+                </button>
+                <button 
+                  className={`format-button ${activeFormats.underline ? 'active' : ''}`}
+                  onClick={() => handleFormatText('underline')}
+                  aria-label="Underline"
+                >
+                  <FontAwesomeIcon icon={faUnderline} />
+                </button>
+                <button 
+                  className={`format-button ${activeFormats.heading ? 'active' : ''}`}
+                  onClick={() => handleFormatText('heading')}
+                  aria-label="Heading"
+                >
+                  <FontAwesomeIcon icon={faHeading} />
+                </button>
+                <button 
+                  className={`format-button ${activeFormats.ul ? 'active' : ''}`}
+                  onClick={() => handleFormatText('ul')}
+                  aria-label="Bullet List"
+                >
+                  <FontAwesomeIcon icon={faListUl} />
+                </button>
+                <button 
+                  className={`format-button ${activeFormats.ol ? 'active' : ''}`}
+                  onClick={() => handleFormatText('ol')}
+                  aria-label="Numbered List"
+                >
+                  <FontAwesomeIcon icon={faListOl} />
+                </button>
+              </div>
+              
               {Array.isArray(notes.content) && notes.content.map((noteContent, index) => (
-                <NoteBox
-                  key={`note-${index}`}
-                  note={noteContent}
-                  index={index}
-                  handleChange={(value) => handleContentUpdate(index, value)}
-                  handleKeyDown={(e) => handleNoteBoxKeyDown(e, index)}
-                  placeholder={index === 0 ? "Start typing..." : ""}
-                />
+                <div key={`note-container-${index}`} className="note-box-container">
+                  <NoteBox
+                    key={`note-${index}`}
+                    note={noteContent}
+                    index={index}
+                    handleChange={(value) => handleContentUpdate(index, value)}
+                    handleKeyDown={(e) => handleNoteBoxKeyDown(e, index)}
+                    placeholder={index === 0 ? "Start typing..." : ""}
+                    onFocus={() => setActiveNoteBoxIndex(index)}
+                  />
+                </div>
               ))}
             </>
           ) : (
             <div className="empty-state">
-                <img src={notebookImage} alt="Notebook" className="notebook-icon" />
+              
               <p>Welcome to Notia {user.displayName.split(' ')[0]}.</p>
               <button className='create-notebook' onClick={() => setIsAddingNotebook(true)}>
                 <img src={addImg} alt="" className="add-button" />

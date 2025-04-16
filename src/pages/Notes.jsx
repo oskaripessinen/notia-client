@@ -126,36 +126,98 @@ const Notes = () => {
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const newNotes = [...notes.content];
-      newNotes.splice(index + 1, 0, '');
+      const currentNotes = Array.isArray(notes.content) ? [...notes.content] : [];
+      
+      // Always ensure we add non-null content
+      currentNotes.splice(index + 1, 0, '');
+
+      console.log('Current Notes:', currentNotes);
+      
       setNotes({
         ...notes,
-        content: newNotes
+        content: currentNotes
       });
+      
       setTimeout(() => {
         const nextTextarea = document.querySelector(`[data-index="${index + 1}"]`);
-        if (nextTextarea) nextTextarea.focus();
-      }, 0);
-    } else if (e.key === 'Backspace' && !notes.content[index] && notes.content.length > 1) {
-      e.preventDefault();
-      const newNotes = [...notes.content];
-      newNotes.splice(index, 1);
-      setNotes({
-        ...notes,
-        content: newNotes
-      });
-      setTimeout(() => {
-        const prevTextarea = document.querySelector(`[data-index="${index - 1}"]`);
-        if (prevTextarea) prevTextarea.focus();
-      }, 0);
+        if (nextTextarea) {
+          nextTextarea.focus();
+        }
+      }, 50); 
+
+    } else if (e.key === 'Backspace' && notes.content.length > 1) {
+      const selection = window.getSelection();
+      const noteBox = document.querySelector(`[data-index="${index}"]`);
+        
+      // Check if cursor is at the beginning of the box
+      const isAtStart = selection && noteBox && selection.anchorOffset === 0 && 
+                        selection.focusOffset === 0 &&
+                        selection.containsNode(noteBox, true) && // Ensure selection is within the box
+                        !selection.anchorNode.previousSibling; // Check if it's the very start
+                        
+      // Only delete if the box is completely empty (or just contains a <br> tag added by contentEditable)
+      const isEmpty = !notes.content[index] || 
+                      notes.content[index].trim() === '' || 
+                      notes.content[index].trim() === '<br>';
+      
+      if (isAtStart && isEmpty) {
+        e.preventDefault();
+        
+        // Create the new state *before* setting it
+        const newNotes = [...notes.content];
+        newNotes.splice(index, 1); // Remove the current item
+
+        console.log('New Notes:', newNotes);
+
+        // Update the state
+        setNotes(prevNotes => ({
+          ...prevNotes,
+          content: newNotes
+        }));
+        
+        // Focus the previous element after state update
+        setTimeout(() => {
+          const prevIndex = Math.max(0, index - 1); // Ensure index doesn't go below 0
+          const prevTextarea = document.querySelector(`[data-index="${prevIndex}"]`);
+          if (prevTextarea) {
+            prevTextarea.focus();
+            // Place cursor at the end
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.selectNodeContents(prevTextarea);
+            range.collapse(false); // false means collapse to end
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+        }, 50); // Use a small delay
+      }
+      // If not empty or not at start, allow default backspace behavior
     } else if (e.key === 'ArrowUp' && index > 0) {
       e.preventDefault();
       const prevTextarea = document.querySelector(`[data-index="${index - 1}"]`);
-      if (prevTextarea) prevTextarea.focus();
+      if (prevTextarea) {
+        prevTextarea.focus();
+        // Place cursor at the end
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(prevTextarea);
+        range.collapse(false); // false means collapse to end
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     } else if (e.key === 'ArrowDown' && index < notes.content.length - 1) {
       e.preventDefault();
       const nextTextarea = document.querySelector(`[data-index="${index + 1}"]`);
-      if (nextTextarea) nextTextarea.focus();
+      if (nextTextarea) {
+        nextTextarea.focus();
+        // Place cursor at the end
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(nextTextarea);
+        range.collapse(false); // false means collapse to end
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
   };
 
