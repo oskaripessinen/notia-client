@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import Editor from '../Editor';
-import Notes from '../../pages/Notes';
 
 const noop = () => {};
 
@@ -42,6 +41,20 @@ jest.mock('../ShareModal', () => {
   };
 });
 
+jest.mock('../NoteBox', () => {
+  return function DummyNoteBox({ note, index, placeholder }) {
+    return (
+      <div 
+        className="note-boxx" 
+        data-index={index} 
+        data-placeholder={placeholder}
+        contentEditable={true}
+      >
+        {note}
+      </div>
+    );
+  };
+});
 
 jest.mock('react', () => {
   const originalReact = jest.requireActual('react');
@@ -85,14 +98,17 @@ describe('Editor Component', () => {
   test('renders editor with note title and content', async () => {
     await act(async () => {
       render(<Editor {...mockProps} />);
-      jest.runAllTimers();
+      jest.runAllTimers(); 
+      await Promise.resolve();
     });
     
     const titleInput = screen.getByDisplayValue('Test Note');
     expect(titleInput).toBeInTheDocument();
     
-    const contentInput = screen.getByDisplayValue('Content line 1');
-    expect(contentInput).toBeInTheDocument();
+    const contentElement = screen.getByText('Content line 1'); 
+    expect(contentElement).toBeInTheDocument();
+    expect(contentElement).toHaveClass('note-boxx'); 
+    expect(contentElement).toHaveAttribute('data-index', '0');
   });
 
   test('updates title when input changes', async () => {

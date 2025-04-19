@@ -1,6 +1,6 @@
 .note-boxx {
     width: 100%;
-    padding: 8px 12px;
+    padding: 6px 12px;
     margin: 0;
     border: 1px solid #2c2c2c;
     border-radius: 4px;
@@ -11,28 +11,24 @@
     outline: none;
     box-sizing: border-box;
     transition: border-color 0.2s ease-in-out;
-    min-height: 38px; /* Set to approximate single line height */
-    height: auto; /* Allow height to adjust */
-    line-height: 1.5;
-    overflow: hidden; /* Hide overflow content */
-    white-space: nowrap; /* Prevent line breaks */
-    text-overflow: ellipsis; /* Show ellipsis for overflowing text */
+    min-height: 32px;
+    overflow: hidden;
+    white-space: nowrap; 
+    text-overflow: ellipsis;
+    justify-content: center;
 }
 
 .note-boxx:hover {
     border-color: #373737;
 }
 
-/* Add a class for expanded mode when editing */
 .note-boxx:focus {
     border-color: #4d4d4d;
-    min-height: 38px;
     height: auto;
-    white-space: normal; /* Allow multiple lines when focused */
-    overflow: visible; /* Show all content when focused */
+    white-space: normal;
+    overflow: visible;
 }
 
-/* Style for placeholder text */
 .note-boxx[contenteditable=true]:empty:before {
     content: attr(data-placeholder);
     color: #666;
@@ -40,8 +36,8 @@
 }
 
 .note-box-container {
-    margin-top: 6px; /* Reduced margin */
-    margin-bottom: 6px; /* Reduced margin */
+    margin-top: 2px; 
+    margin-bottom: 2px; 
     position: relative;
 }
 
@@ -91,10 +87,9 @@
     color: #5a5af3;
 }
 
-/* Formatted text styles */
 .note-boxx strong { font-weight: bold; }
 .note-boxx em { font-style: italic; }
 .note-boxx u { text-decoration: underline; }
-.note-boxx h1 { font-size: 1.5em; margin: 0.5em 0; }
-.note-boxx ul { padding-left: 20px; }
-.note-boxx ol { padding-left: 20px; }
+.note-boxx h1 { font-size: 1.5em; margin: 0.1rem; }
+.note-boxx ul { padding-left: 20px; margin: 5px 0; }
+.note-boxx ol { padding-left: 20px; margin: 5px 0; }

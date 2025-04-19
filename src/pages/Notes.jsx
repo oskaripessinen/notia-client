@@ -125,83 +125,86 @@ const Notes = () => {
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
-      e.preventDefault();
+      // Käytä queryCommandState-metodia tarkistaaksesi, onko kursori listan sisällä
+      const isInsideUL = document.queryCommandState('insertUnorderedList');
+      const isInsideOL = document.queryCommandState('insertOrderedList');
+
+      // Jos kursori on jommankumman listatyypin sisällä, anna selaimen hoitaa Enter
+      if (isInsideUL || isInsideOL) {
+        // ÄLÄ kutsu e.preventDefault()
+        // Selain hoitaa uuden <li>-elementin luomisen.
+        // NoteBoxin onInput-käsittelijän pitäisi laukaista handleChange automaattisesti
+        // DOM-muutoksen jälkeen, joten manuaalista päivitystä setTimeoutissa ei tarvita.
+        return; // Salli selaimen oletuskäyttäytyminen
+      }
+
+      // --- Jos EI olla listan sisällä, suorita oma logiikka uuden NoteBoxin luomiseksi ---
+      e.preventDefault(); // Estä selaimen oletustoiminto (esim. <br> tai <div> lisäys)
       const currentNotes = Array.isArray(notes.content) ? [...notes.content] : [];
-      
-      // Always ensure we add non-null content
+
+      // Lisää aina tyhjä merkkijono uudelle riville
       currentNotes.splice(index + 1, 0, '');
 
-      console.log('Current Notes:', currentNotes);
-      
+
       setNotes({
         ...notes,
         content: currentNotes
       });
-      
+
       setTimeout(() => {
         const nextTextarea = document.querySelector(`[data-index="${index + 1}"]`);
         if (nextTextarea) {
           nextTextarea.focus();
         }
-      }, 50); 
+      }, 50);
 
     } else if (e.key === 'Backspace' && notes.content.length > 1) {
       const selection = window.getSelection();
       const noteBox = document.querySelector(`[data-index="${index}"]`);
-        
-      // Check if cursor is at the beginning of the box
-      const isAtStart = selection && noteBox && selection.anchorOffset === 0 && 
+
+      const isAtStart = selection && noteBox && selection.anchorOffset === 0 &&
                         selection.focusOffset === 0 &&
-                        selection.containsNode(noteBox, true) && // Ensure selection is within the box
-                        !selection.anchorNode.previousSibling; // Check if it's the very start
-                        
-      // Only delete if the box is completely empty (or just contains a <br> tag added by contentEditable)
-      const isEmpty = !notes.content[index] || 
-                      notes.content[index].trim() === '' || 
+                        selection.containsNode(noteBox, true) &&
+                        (!selection.anchorNode || !selection.anchorNode.previousSibling || selection.anchorNode === noteBox);
+
+      const isEmpty = !notes.content[index] ||
+                      notes.content[index].trim() === '' ||
                       notes.content[index].trim() === '<br>';
-      
+
       if (isAtStart && isEmpty) {
         e.preventDefault();
-        
-        // Create the new state *before* setting it
+
         const newNotes = [...notes.content];
-        newNotes.splice(index, 1); // Remove the current item
+        newNotes.splice(index, 1);
 
-        console.log('New Notes:', newNotes);
-
-        // Update the state
         setNotes(prevNotes => ({
           ...prevNotes,
           content: newNotes
         }));
-        
-        // Focus the previous element after state update
+
         setTimeout(() => {
-          const prevIndex = Math.max(0, index - 1); // Ensure index doesn't go below 0
+          const prevIndex = Math.max(0, index - 1);
           const prevTextarea = document.querySelector(`[data-index="${prevIndex}"]`);
           if (prevTextarea) {
             prevTextarea.focus();
-            // Place cursor at the end
             const range = document.createRange();
             const sel = window.getSelection();
             range.selectNodeContents(prevTextarea);
-            range.collapse(false); // false means collapse to end
+            range.collapse(false);
             sel.removeAllRanges();
             sel.addRange(range);
           }
-        }, 50); // Use a small delay
+        }, 50);
       }
-      // If not empty or not at start, allow default backspace behavior
     } else if (e.key === 'ArrowUp' && index > 0) {
-      e.preventDefault();
+       e.preventDefault();
       const prevTextarea = document.querySelector(`[data-index="${index - 1}"]`);
       if (prevTextarea) {
         prevTextarea.focus();
-        // Place cursor at the end
         const range = document.createRange();
         const sel = window.getSelection();
         range.selectNodeContents(prevTextarea);
-        range.collapse(false); // false means collapse to end
+        range.collapse(false);
         sel.removeAllRanges();
         sel.addRange(range);
       }
@@ -210,11 +213,10 @@ const Notes = () => {
       const nextTextarea = document.querySelector(`[data-index="${index + 1}"]`);
       if (nextTextarea) {
         nextTextarea.focus();
-        // Place cursor at the end
         const range = document.createRange();
         const sel = window.getSelection();
         range.selectNodeContents(nextTextarea);
-        range.collapse(false); // false means collapse to end
+        range.collapse(false);
         sel.removeAllRanges();
         sel.addRange(range);
       }
@@ -299,21 +301,15 @@ const Notes = () => {
     });
     setNotebooks(updatedNotebooks);
 
-    // If we're deleting the active note
     if (activeNote?._id === noteId) {
-      // Get the updated notebook after deletion
       const updatedNotebook = updatedNotebooks.find(nb => nb._id === notebookId);
       
-      // If there are still notes left in the notebook
       if (updatedNotebook.notes && updatedNotebook.notes.length > 0) {
-        // Try to get the previous note (if it exists)
         let nextActiveNote;
         
-        // If the deleted note wasn't the first one, get the previous note
         if (deletedNoteIndex > 0) {
           nextActiveNote = updatedNotebook.notes[deletedNoteIndex - 1];
         } else {
-          // Otherwise, get the new first note
           nextActiveNote = updatedNotebook.notes[0];
         }
         
@@ -329,7 +325,6 @@ const Notes = () => {
           content: nextActiveNote.content || ['']
         });
       } else {
-        // If no notes left, clear the active note
         setActiveNote(null);
         setNotes({
           title: '',
@@ -339,15 +334,11 @@ const Notes = () => {
     }
   };
 
-  // Update the handleNoteSelect function to safely handle undefined notes
   const handleNoteSelect = (notebook, note) => {
-    // Check if notebook exists but note is undefined
     if (notebook && !note) {
       
-      // If the notebook has notes, select the first one
       if (notebook.notes && notebook.notes.length > 0) {
         const firstNote = notebook.notes[0];
-        // Make sure the note has _id
         if (firstNote && firstNote._id) {
           setActiveNote({
             ...firstNote,
@@ -361,7 +352,6 @@ const Notes = () => {
             content: firstNote.content || ['']
           });
         } else {
-          // No valid first note, set empty state
           setActiveNote(null);
           setNotes({
             title: '',
@@ -369,7 +359,6 @@ const Notes = () => {
           });
         }
       } else {
-        // Empty notebook, set empty state
         setActiveNote(null);
         setNotes({
           title: '',
@@ -380,16 +369,12 @@ const Notes = () => {
       return;
     }
     
-    // Original function logic for when both notebook and note are defined
-    // Check if both notebook and note are defined
     if (!notebook || !note) {
       return;
     }
     
-    // Verify that note has the _id property
     if (!note._id) {
       
-      // Try to find a matching note with _id in the notebook
       if (notebook.notes && notebook.notes.length > 0) {
         const matchingNote = notebook.notes.find(
           n => n.title === note.title || 
@@ -397,7 +382,6 @@ const Notes = () => {
         );
         
         if (matchingNote && matchingNote._id) {
-          // Use the matching note with proper _id
           setActiveNote({
             ...matchingNote,
             id: matchingNote._id,
@@ -405,7 +389,6 @@ const Notes = () => {
             notebookId: notebook._id
           });
           
-          // THIS LINE WAS MISSING - Update the notes state with the content
           setNotes({
             title: matchingNote.title || '',
             content: matchingNote.content || ['']
@@ -414,11 +397,9 @@ const Notes = () => {
         }
       }
       
-      // If still no _id, don't proceed
       return;
     }
     
-    // Now we can safely use note._id
     setActiveNote({
       ...note,
       id: note._id,
@@ -426,7 +407,6 @@ const Notes = () => {
       notebookId: notebook._id
     });
     
-    // THIS LINE WAS MISSING - Update the notes state with the content
     setNotes({
       title: note.title || '',
       content: note.content || ['']
@@ -458,28 +438,22 @@ const Notes = () => {
     }
   };
 
-  // Add this function to update notebooks whenever a note is edited
   const updateNoteInLocalState = (notebookId, noteId, updates) => {
     setNotebooks(prevNotebooks => {
       return prevNotebooks.map(notebook => {
-        // If this is not the notebook containing our note, return it unchanged
         if (notebook._id !== notebookId) return notebook;
         
-        // Otherwise, update the specific note in this notebook
         const updatedNotes = notebook.notes.map(note => {
           if (note._id !== noteId) return note;
           
-          // Return the updated note
           return {
             ...note,
             ...updates,
-            // Ensure IDs are preserved
             _id: note._id,
             id: note._id
           };
         });
         
-        // Return the notebook with updated notes array
         return {
           ...notebook,
           notes: updatedNotes
@@ -488,7 +462,6 @@ const Notes = () => {
     });
   };
 
-  // Update your return statement to handle loading state
   if (loading) {
     return <div className="loading-container">
             <div className="loading-spinner"></div>
