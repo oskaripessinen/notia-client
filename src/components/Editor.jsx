@@ -3,7 +3,7 @@ import NoteBox from './NoteBox';
 import '../styles/editor.css';
 import addImg from '../assets/add.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faCloud, faTrash, faShareNodes, faUserGroup, faLock, faBold, faItalic, faUnderline, faListUl, faListOl, faHeading } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faCloud, faTrash, faShareNodes, faUserGroup, faLock, faBold, faItalic, faUnderline, faListUl, faHeading } from '@fortawesome/free-solid-svg-icons';
 import noteService from '../services/noteService';
 import userService from '../services/userService';
 import socketService from '../services/socketService';
@@ -63,7 +63,6 @@ const Editor = ({
     
     switch(action) {
       case 'delete':
-        // Implement delete functionality
         break;
       case 'share':
         setIsShareModalOpen(true);
@@ -87,13 +86,11 @@ const Editor = ({
       }
 
       try {
-        // First update local state immediately for a responsive UI
         updateNoteInLocalState(activeNotebook._id, activeNote._id, { 
           title, 
           content 
         });
         
-        // Then save to server
         const updatedNote = await noteService.updateNote(
           activeNotebook._id,
           activeNote._id,
@@ -251,17 +248,15 @@ const Editor = ({
       underline: document.queryCommandState('underline'),
       heading: document.queryCommandValue('formatBlock') === 'h1',
       ul: document.queryCommandState('insertUnorderedList'),
-      ol: document.queryCommandState('insertOrderedList')
+      ol: false 
     });
-  };2
+  };
 
   const handleFormatText = (format) => {
     if (!document.execCommand) {
-      console.log('Command not supported');
       return;
     }
 
-    // Focus the active note box
     const noteBox = document.querySelector(`[data-index="${activeNoteBoxIndex}"]`);
     if (!noteBox) return;
     
@@ -293,14 +288,12 @@ const Editor = ({
         }
         break;
       case 'ul':
-        // If heading is active, remove it before creating list
         if (activeFormats.heading) {
           document.execCommand('formatBlock', false, '<p>');
         }
         document.execCommand('insertUnorderedList', false, null);
         break;
       case 'ol':
-        // If heading is active, remove it before creating list
         if (activeFormats.heading) {
           document.execCommand('formatBlock', false, '<p>');
         }
@@ -310,10 +303,8 @@ const Editor = ({
         break;
     }
     
-    // Check which formats are active after the change
     checkActiveFormats();
     
-    // Update the note content with the new HTML
     if (noteBox.innerHTML !== notes.content[activeNoteBoxIndex]) {
       handleContentUpdate(activeNoteBoxIndex, noteBox.innerHTML);
     }
@@ -445,13 +436,6 @@ const Editor = ({
                   aria-label="Bullet List"
                 >
                   <FontAwesomeIcon icon={faListUl} />
-                </button>
-                <button 
-                  className={`format-button ${activeFormats.ol ? 'active' : ''}`}
-                  onClick={() => handleFormatText('ol')}
-                  aria-label="Numbered List"
-                >
-                  <FontAwesomeIcon icon={faListOl} />
                 </button>
               </div>
               

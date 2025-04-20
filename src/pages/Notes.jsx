@@ -7,6 +7,7 @@ import ShareModal from '../components/ShareModal';
 import noteService from '../services/noteService';
 import '../styles/notes.css';
 import socketService from '../services/socketService';
+
 const Notes = () => {
   const [notes, setNotes] = useState({ title: '', content: [''] });
   const [user, setUser] = useState(null);
@@ -20,15 +21,11 @@ const Notes = () => {
   
   const navigate = useNavigate(); 
 
-  // Combine the auth check and data fetching into a single effect
   useEffect(() => {
-  
-
     const initializeApp = async (retryCount = 0) => {
       try {
         const authData = await AuthService.checkAuthStatus();
         if (!authData.authenticated) {          
-          // Retry logic - give the session time to establish
           if (retryCount < 2) {
             setTimeout(() => initializeApp(retryCount + 1), 1000);
             return;
@@ -41,7 +38,6 @@ const Notes = () => {
         setAuthStatus(true);
         setUser(authData.user);
         
-        // Now that we have authentication confirmed, fetch notebooks
         const fetchedNotebooks = await noteService.fetchNotebooks();
         
         if (fetchedNotebooks) {
@@ -53,27 +49,23 @@ const Notes = () => {
           return;
         }
         
-        navigate('/login'); // Redirect on error after retries
+        navigate('/login'); 
       } finally {
-        // Always set loading to false after the operation completes
         setLoading(false);
       }
     };
     
     initializeApp();
-  }, [navigate]); // Only depend on navigate
+  }, [navigate]);
 
-  // First, use useCallback to memoize the function to prevent infinite render loops
   const checkForNewNotebooks = useCallback(async () => {
     const fetchedNotebooks = await noteService.fetchNotebooks();
     if (fetchedNotebooks && fetchedNotebooks.length > notebooks.length) {
       setNotebooks(fetchedNotebooks);
     }
-  }, [notebooks.length]); // Add notebooks.length as dependency
+  }, [notebooks.length]); 
 
-  // Then update the useEffect with the memoized function in its dependency array
   useEffect(() => {
-
     checkForNewNotebooks();
     const pollingInterval = setInterval(() => {
       checkForNewNotebooks();
@@ -83,7 +75,6 @@ const Notes = () => {
   }, [checkForNewNotebooks]);
 
   useEffect(() => {
-
     checkAuthStatus();
     const authCheckInterval = setInterval(checkAuthStatus, 10000); // Check every 10 seconds
     return () => clearInterval(authCheckInterval);
@@ -100,7 +91,6 @@ const Notes = () => {
 
   useEffect(() => {
     if (activeNotebook?._id) {
-
       const unsubscribeSyncHandler = socketService.handleNotebookSync((updatedNotebook) => {
         setActiveNotebook(updatedNotebook);
         
@@ -125,32 +115,51 @@ const Notes = () => {
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
-      // Käytä queryCommandState-metodia tarkistaaksesi, onko kursori listan sisällä
       const isInsideUL = document.queryCommandState('insertUnorderedList');
-      const isInsideOL = document.queryCommandState('insertOrderedList');
 
-      // Jos kursori on jommankumman listatyypin sisällä, anna selaimen hoitaa Enter
-      if (isInsideUL || isInsideOL) {
-        // ÄLÄ kutsu e.preventDefault()
-        // Selain hoitaa uuden <li>-elementin luomisen.
-        // NoteBoxin onInput-käsittelijän pitäisi laukaista handleChange automaattisesti
-        // DOM-muutoksen jälkeen, joten manuaalista päivitystä setTimeoutissa ei tarvita.
-        return; // Salli selaimen oletuskäyttäytyminen
+      if (isInsideUL) {
+        e.preventDefault(); // Estä oletustoiminto (uusi <li> samaan laatikkoon)
+        
+        const currentNotesContent = Array.isArray(notes.content) ? [...notes.content] : [];
+        currentNotesContent.splice(index + 1, 0, ''); // Lisää tyhjä paikka uudelle laatikolle
+
+        setNotes(prevNotes => ({
+          ...prevNotes,
+          content: currentNotesContent
+        }));
+
+        setTimeout(() => {
+          const nextTextarea = document.querySelector(`[data-index="${index + 1}"]`);
+          if (nextTextarea) {
+            nextTextarea.focus();
+            
+            document.execCommand('insertUnorderedList', false, null);
+
+            const newContentHTML = nextTextarea.innerHTML; 
+
+            setNotes(prevNotes => {
+              const updatedContent = [...prevNotes.content];
+              if (updatedContent[index + 1] !== undefined) {
+                updatedContent[index + 1] = newContentHTML;
+              }
+              return {
+                ...prevNotes,
+                content: updatedContent
+              };
+            });
+          }
+        }, 50);
+
+        return;
       }
 
-      // --- Jos EI olla listan sisällä, suorita oma logiikka uuden NoteBoxin luomiseksi ---
-      e.preventDefault(); // Estä selaimen oletustoiminto (esim. <br> tai <div> lisäys)
-      const currentNotes = Array.isArray(notes.content) ? [...notes.content] : [];
-
-      // Lisää aina tyhjä merkkijono uudelle riville
-      currentNotes.splice(index + 1, 0, '');
-
-
+      e.preventDefault(); 
+      const originalNotesContent = Array.isArray(notes.content) ? [...notes.content] : [];
+      originalNotesContent.splice(index + 1, 0, '');
       setNotes({
         ...notes,
-        content: currentNotes
+        content: originalNotesContent
       });
-
       setTimeout(() => {
         const nextTextarea = document.querySelector(`[data-index="${index + 1}"]`);
         if (nextTextarea) {
@@ -264,7 +273,6 @@ const Notes = () => {
   };
 
   const handleShareNoteBook = async (email) => {
-      
     const response = await noteService.shareNotebook(activeNotebook._id, [email]);
     
     if (!response || !response.notebook) {
@@ -278,9 +286,7 @@ const Notes = () => {
         nb._id === response.notebook._id ? response.notebook : nb
       )
     );
-
-  
-    };
+  };
 
   const handleDeleteNote = async (e, noteId, notebookId) => {
     e.stopPropagation();
@@ -336,7 +342,6 @@ const Notes = () => {
 
   const handleNoteSelect = (notebook, note) => {
     if (notebook && !note) {
-      
       if (notebook.notes && notebook.notes.length > 0) {
         const firstNote = notebook.notes[0];
         if (firstNote && firstNote._id) {
@@ -374,7 +379,6 @@ const Notes = () => {
     }
     
     if (!note._id) {
-      
       if (notebook.notes && notebook.notes.length > 0) {
         const matchingNote = notebook.notes.find(
           n => n.title === note.title || 
